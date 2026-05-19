@@ -1,12 +1,521 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FlatpackAPOC</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Boxed Building Template Maker</title>
+
+  <!--
+    Boxed Building Template Maker
+    ---------------------------------
+    Upload 5 images: Front, Back, Left, Right and Top.
+    Enter the real printable size of the box in mm.
+    The app creates a simple cut/fold/glue papercraft template.
+
+    Works as a single HTML file.
+    Good for GitHub Pages.
+  -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #202020;
+      color: #f5f5f5;
+    }
+
+    header {
+      padding: 22px;
+      background: #111;
+      border-bottom: 3px solid #d0a53b;
+    }
+
+    header h1 {
+      margin: 0 0 6px;
+      font-size: 28px;
+    }
+
+    header p {
+      margin: 0;
+      color: #ccc;
+    }
+
+    .wrap {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .panel {
+      background: #2d2d2d;
+      border: 1px solid #444;
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 20px;
+      color: #ffd66b;
+    }
+
+    label {
+      display: block;
+      margin: 14px 0 6px;
+      font-weight: bold;
+      color: #eee;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #666;
+      font-size: 15px;
+    }
+
+    input, select {
+      background: #fff;
+      color: #111;
+    }
+
+    button {
+      margin-top: 12px;
+      border: none;
+      background: #d0a53b;
+      color: #111;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    button:hover { background: #f0c95a; }
+
+    .note {
+      font-size: 13px;
+      line-height: 1.45;
+      color: #cfcfcf;
+      background: #1f1f1f;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 14px;
+    }
+
+    .canvasBox {
+      overflow: auto;
+      background: #777;
+      border-radius: 12px;
+      padding: 18px;
+      text-align: center;
+    }
+
+    canvas {
+      background: white;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+      max-width: 100%;
+      height: auto;
+    }
+
+    .smallGrid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    @media (max-width: 900px) {
+      .wrap { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
-    <h1>Welcome to FlatpackAPOC</h1>
-    <p>This is the main landing page.</p>
+  <header>
+    <h1>Boxed Building Template Maker</h1>
+    <p>Upload the front, back, sides and top of a building block, then download a printable cut-out template.</p>
+  </header>
+
+  <div class="wrap">
+    <div class="panel">
+      <h2>1. Upload Images</h2>
+
+      <label>Front</label>
+      <input type="file" id="frontImg" accept="image/*">
+
+      <label>Back</label>
+      <input type="file" id="backImg" accept="image/*">
+
+      <label>Left Side</label>
+      <input type="file" id="leftImg" accept="image/*">
+
+      <label>Right Side</label>
+      <input type="file" id="rightImg" accept="image/*">
+
+      <label>Top / Roof</label>
+      <input type="file" id="topImg" accept="image/*">
+
+      <h2 style="margin-top:24px;">2. Building Size</h2>
+
+      <div class="smallGrid">
+        <div>
+          <label>Width mm</label>
+          <input type="number" id="boxW" value="80" min="10">
+        </div>
+        <div>
+          <label>Depth mm</label>
+          <input type="number" id="boxD" value="60" min="10">
+        </div>
+        <div>
+          <label>Height mm</label>
+          <input type="number" id="boxH" value="50" min="10">
+        </div>
+        <div>
+          <label>Glue Tab mm</label>
+          <input type="number" id="tabSize" value="8" min="3">
+        </div>
+      </div>
+
+      <label>Paper Size</label>
+      <select id="paperSize">
+        <option value="a4">A4 Portrait</option>
+        <option value="letter">US Letter Portrait</option>
+        <option value="a3">A3 Portrait</option>
+      </select>
+
+      <label>Print Scale</label>
+      <select id="scaleMode">
+        <option value="fit">Fit to Page</option>
+        <option value="real">Real Size if Possible</option>
+      </select>
+
+      <button onclick="generateTemplate()">Generate Template</button>
+      <button onclick="downloadPNG()">Download PNG</button>
+      <button onclick="downloadPDF()">Download PDF</button>
+
+      <div class="note">
+        <strong>Tip:</strong> For your game buildings, render flat views from Cinema 4D: front, back, left, right and top. Use no perspective for best results. Print on card, cut solid lines, fold dotted lines, then glue the tabs.
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Preview</h2>
+      <div class="canvasBox">
+        <canvas id="templateCanvas"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('templateCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let loaded = {
+      front: null,
+      back: null,
+      left: null,
+      right: null,
+      top: null
+    };
+
+    const fileMap = [
+      ['frontImg', 'front'],
+      ['backImg', 'back'],
+      ['leftImg', 'left'],
+      ['rightImg', 'right'],
+      ['topImg', 'top']
+    ];
+
+    fileMap.forEach(([inputId, key]) => {
+      document.getElementById(inputId).addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = event => {
+          const img = new Image();
+          img.onload = () => {
+            loaded[key] = img;
+            generateTemplate();
+          };
+          img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+
+    function getPaper() {
+      const paper = document.getElementById('paperSize').value;
+      // 300dpi-ish canvas working size in pixels, portrait
+      if (paper === 'a3') return { mmW: 297, mmH: 420, pxW: 1754, pxH: 2480 };
+      if (paper === 'letter') return { mmW: 215.9, mmH: 279.4, pxW: 1275, pxH: 1650 };
+      return { mmW: 210, mmH: 297, pxW: 1240, pxH: 1754 };
+    }
+
+    function mmToPx(mm, scale) {
+      return mm * scale;
+    }
+
+    function drawImageCover(img, x, y, w, h) {
+      if (!img) {
+        ctx.fillStyle = '#e9e9e9';
+        ctx.fillRect(x, y, w, h);
+        ctx.fillStyle = '#777';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.font = 'bold 22px Arial';
+        ctx.fillText('UPLOAD IMAGE', x + w / 2, y + h / 2);
+        return;
+      }
+
+      const imgRatio = img.width / img.height;
+      const boxRatio = w / h;
+      let sx, sy, sw, sh;
+
+      if (imgRatio > boxRatio) {
+        sh = img.height;
+        sw = img.height * boxRatio;
+        sx = (img.width - sw) / 2;
+        sy = 0;
+      } else {
+        sw = img.width;
+        sh = img.width / boxRatio;
+        sx = 0;
+        sy = (img.height - sh) / 2;
+      }
+
+      ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+    }
+
+    function line(x1, y1, x2, y2, dashed = false, colour = '#000', width = 2) {
+      ctx.save();
+      ctx.strokeStyle = colour;
+      ctx.lineWidth = width;
+      if (dashed) ctx.setLineDash([10, 8]);
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function rect(x, y, w, h, dashed = false, colour = '#000', width = 2) {
+      ctx.save();
+      ctx.strokeStyle = colour;
+      ctx.lineWidth = width;
+      if (dashed) ctx.setLineDash([10, 8]);
+      ctx.strokeRect(x, y, w, h);
+      ctx.restore();
+    }
+
+    function drawTab(points) {
+      ctx.save();
+      ctx.fillStyle = '#fff7d2';
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(points[0][0], points[0][1]);
+      for (let i = 1; i < points.length; i++) ctx.lineTo(points[i][0], points[i][1]);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function label(text, x, y) {
+      ctx.save();
+      ctx.fillStyle = 'rgba(255,255,255,0.82)';
+      ctx.fillRect(x - 45, y - 15, 90, 25);
+      ctx.fillStyle = '#000';
+      ctx.font = 'bold 14px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(text, x, y);
+      ctx.restore();
+    }
+
+    function generateTemplate() {
+      const paper = getPaper();
+      canvas.width = paper.pxW;
+      canvas.height = paper.pxH;
+
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const boxWmm = Number(document.getElementById('boxW').value) || 80;
+      const boxDmm = Number(document.getElementById('boxD').value) || 60;
+      const boxHmm = Number(document.getElementById('boxH').value) || 50;
+      const tabMm = Number(document.getElementById('tabSize').value) || 8;
+      const scaleMode = document.getElementById('scaleMode').value;
+
+      const margin = 70;
+      const availableW = canvas.width - margin * 2;
+      const availableH = canvas.height - margin * 2;
+
+      const netWmm = boxDmm + boxWmm + boxDmm + boxWmm + tabMm;
+      const netHmm = boxDmm + boxHmm + boxDmm + tabMm;
+
+      let scale = paper.pxW / paper.mmW;
+
+      if (scaleMode === 'fit') {
+        scale = Math.min(availableW / netWmm, availableH / netHmm);
+      } else {
+        const realScale = paper.pxW / paper.mmW;
+        const fits = (netWmm * realScale < availableW) && (netHmm * realScale < availableH);
+        scale = fits ? realScale : Math.min(availableW / netWmm, availableH / netHmm);
+      }
+
+      const W = mmToPx(boxWmm, scale);
+      const D = mmToPx(boxDmm, scale);
+      const H = mmToPx(boxHmm, scale);
+      const T = mmToPx(tabMm, scale);
+
+      const totalW = D + W + D + W + T;
+      const totalH = D + H + D + T;
+
+      const startX = (canvas.width - totalW) / 2;
+      const startY = (canvas.height - totalH) / 2 + 20;
+
+      const leftX = startX;
+      const frontX = leftX + D;
+      const rightX = frontX + W;
+      const backX = rightX + D;
+      const tabX = backX + W;
+
+      const topY = startY;
+      const midY = topY + D;
+      const bottomY = midY + H;
+
+      // Title
+      ctx.fillStyle = '#111';
+      ctx.font = 'bold 28px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('Boxed Building Cut-Out Template', canvas.width / 2, 42);
+
+      ctx.font = '16px Arial';
+      ctx.fillText('Cut solid lines. Fold dotted lines. Glue the pale yellow tabs.', canvas.width / 2, 68);
+
+      // Top roof above front
+      drawImageCover(loaded.top, frontX, topY, W, D);
+      rect(frontX, topY, W, D, false);
+      label('TOP', frontX + W/2, topY + D/2);
+
+      // Main strip: left, front, right, back
+      drawImageCover(loaded.left, leftX, midY, D, H);
+      drawImageCover(loaded.front, frontX, midY, W, H);
+      drawImageCover(loaded.right, rightX, midY, D, H);
+      drawImageCover(loaded.back, backX, midY, W, H);
+
+      rect(leftX, midY, D, H, false);
+      rect(frontX, midY, W, H, false);
+      rect(rightX, midY, D, H, false);
+      rect(backX, midY, W, H, false);
+
+      label('LEFT', leftX + D/2, midY + H/2);
+      label('FRONT', frontX + W/2, midY + H/2);
+      label('RIGHT', rightX + D/2, midY + H/2);
+      label('BACK', backX + W/2, midY + H/2);
+
+      // Optional base tab below front
+      drawTab([
+        [frontX, bottomY],
+        [frontX + W, bottomY],
+        [frontX + W - T, bottomY + T],
+        [frontX + T, bottomY + T]
+      ]);
+      ctx.fillStyle = '#000';
+      ctx.font = 'bold 12px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('GLUE TAB', frontX + W/2, bottomY + T/2 + 4);
+
+      // Side glue tab at end
+      drawTab([
+        [tabX, midY],
+        [tabX + T, midY + T],
+        [tabX + T, midY + H - T],
+        [tabX, midY + H]
+      ]);
+      ctx.save();
+      ctx.translate(tabX + T / 2, midY + H / 2);
+      ctx.rotate(Math.PI / 2);
+      ctx.fillStyle = '#000';
+      ctx.font = 'bold 12px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('GLUE TAB', 0, 4);
+      ctx.restore();
+
+      // Small glue tabs for top/roof
+      drawTab([
+        [frontX, topY],
+        [frontX - T, topY + T],
+        [frontX - T, topY + D - T],
+        [frontX, topY + D]
+      ]);
+      drawTab([
+        [frontX + W, topY],
+        [frontX + W + T, topY + T],
+        [frontX + W + T, topY + D - T],
+        [frontX + W, topY + D]
+      ]);
+
+      // Fold lines
+      line(frontX, midY, frontX, midY + H, true, '#000', 2);
+      line(rightX, midY, rightX, midY + H, true, '#000', 2);
+      line(backX, midY, backX, midY + H, true, '#000', 2);
+      line(tabX, midY, tabX, midY + H, true, '#000', 2);
+      line(frontX, topY + D, frontX + W, topY + D, true, '#000', 2);
+      line(frontX, bottomY, frontX + W, bottomY, true, '#000', 2);
+
+      // Outer cut guide emphasis
+      ctx.save();
+      ctx.strokeStyle = '#111';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(frontX, topY, W, D);
+      ctx.strokeRect(leftX, midY, D + W + D + W, H);
+      ctx.restore();
+
+      // Scale info
+      ctx.fillStyle = '#111';
+      ctx.font = '14px Arial';
+      ctx.textAlign = 'left';
+      ctx.fillText(`Building size: ${boxWmm}mm wide x ${boxDmm}mm deep x ${boxHmm}mm high`, 40, canvas.height - 45);
+      ctx.fillText(`Generated at ${Math.round(scale * 10) / 10} pixels per mm`, 40, canvas.height - 24);
+    }
+
+    function downloadPNG() {
+      generateTemplate();
+      const link = document.createElement('a');
+      link.download = 'boxed-building-template.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    function downloadPDF() {
+      generateTemplate();
+
+      const paperChoice = document.getElementById('paperSize').value;
+      let format = 'a4';
+      if (paperChoice === 'a3') format = 'a3';
+      if (paperChoice === 'letter') format = 'letter';
+
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: format
+      });
+
+      const pageW = pdf.internal.pageSize.getWidth();
+      const pageH = pdf.internal.pageSize.getHeight();
+      const img = canvas.toDataURL('image/png', 1.0);
+
+      pdf.addImage(img, 'PNG', 0, 0, pageW, pageH);
+      pdf.save('boxed-building-template.pdf');
+    }
+
+    generateTemplate();
+  </script>
 </body>
 </html>
