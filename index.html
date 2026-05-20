@@ -8,7 +8,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-
 *{
   box-sizing:border-box;
 }
@@ -156,7 +155,6 @@ canvas{
     grid-template-columns:1fr;
   }
 }
-
 </style>
 </head>
 
@@ -242,7 +240,7 @@ canvas{
 
 <div>
 <label>Sheet Preview Size %</label>
-<input type="number" id="sheetPreviewSize" value="48">
+<input type="number" id="sheetPreviewSize" value="30">
 </div>
 
 <div>
@@ -270,11 +268,6 @@ Auto-crop transparent / black edges
 <label>
 <input type="checkbox" id="useBackground" checked style="width:auto;margin-right:8px;">
 Use uploaded background
-</label>
-
-<label>
-<input type="checkbox" id="showPrintLabels" style="width:auto;margin-right:8px;">
-Show labels on final print
 </label>
 
 <h2 style="margin-top:24px;">3. Face Mapping</h2>
@@ -413,7 +406,6 @@ let loaded={
 'sheetPreviewSize',
 'autoCrop',
 'useBackground',
-'showPrintLabels',
 'mapFront',
 'mapBack',
 'mapLeft',
@@ -455,50 +447,6 @@ function rect(x,y,w,h,dashed=false){
   line(x,y+h,x,y,dashed);
 }
 
-function drawTab(points){
-
-  ctx.save();
-
-  ctx.fillStyle='#fff7d2';
-  ctx.strokeStyle='#000';
-  ctx.lineWidth=2;
-
-  ctx.beginPath();
-
-  ctx.moveTo(points[0][0],points[0][1]);
-
-  for(let i=1;i<points.length;i++){
-    ctx.lineTo(points[i][0],points[i][1]);
-  }
-
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
-
-  ctx.restore();
-
-}
-
-function drawPanelLabel(text,x,y){
-
-  const showLabels=document.getElementById('showPrintLabels').checked;
-
-  if(!showLabels)return;
-
-  ctx.save();
-
-  ctx.fillStyle='rgba(255,255,255,.82)';
-  ctx.fillRect(x-45,y-15,90,30);
-
-  ctx.fillStyle='#000';
-  ctx.font='bold 16px Arial';
-  ctx.textAlign='center';
-  ctx.fillText(text,x,y+6);
-
-  ctx.restore();
-
-}
-
 function getMappedImage(id){
   return loaded[document.getElementById(id).value];
 }
@@ -517,15 +465,11 @@ function generateTemplate(){
   const T=Number(tabSize.value)*5;
 
   const startX=(canvas.width-(D+W+D+W+T))/2;
-  const startY=820;
-
-  //
-  // LARGE PREVIEW IMAGE
-  //
+  const startY=700;
 
   if(loaded.preview){
 
-    const maxW=canvas.width*0.62;
+    const maxW=canvas.width*0.42;
     const maxH=canvas.height*(sheetPreviewSize.value/100);
 
     let drawW=maxW;
@@ -539,74 +483,31 @@ function generateTemplate(){
     ctx.drawImage(
       loaded.preview,
       (canvas.width-drawW)/2,
-      90,
+      100,
       drawW,
       drawH
     );
 
   }
 
-  //
-  // PANELS
-  //
-
   drawPanel(startX,startY+D,W,H,getMappedImage('mapFront'),'FRONT');
-
   drawPanel(startX+W,startY+D,D,H,getMappedImage('mapRight'),'RIGHT');
-
   drawPanel(startX+W+D,startY+D,W,H,getMappedImage('mapBack'),'BACK');
-
   drawPanel(startX+W+D+W,startY+D,D,H,getMappedImage('mapLeft'),'LEFT');
 
   drawPanel(startX+W,startY,W,D,loaded.top,'TOP');
 
-  //
-  // FOLD LINES
-  //
-
   line(startX+W,startY,startX+W,startY+D,true);
-
   line(startX+W+D,startY+D,startX+W+D,startY+D+H,true);
-
   line(startX+W+D+W,startY+D,startX+W+D+W,startY+D+H,true);
-
-  //
-  // TOP GLUE TAB
-  //
-
-  drawTab([
-    [startX+W, startY-T],
-    [startX+W+W, startY-T],
-    [startX+W+W-T, startY],
-    [startX+W+T, startY]
-  ]);
-
-  //
-  // SIDE GLUE TAB
-  //
-
-  drawTab([
-    [startX+W+D+W+D, startY+D],
-    [startX+W+D+W+D+T, startY+D+T],
-    [startX+W+D+W+D+T, startY+D+H-T],
-    [startX+W+D+W+D, startY+D+H]
-  ]);
 
 }
 
 function drawPanel(x,y,w,h,img,label){
 
-  //
-  // BACKGROUND
-  //
-
   if(useBackground.checked && loaded.bg){
     ctx.drawImage(loaded.bg,x,y,w,h);
   }
-
-  //
-  // BUILDING
-  //
 
   if(img){
 
@@ -631,27 +532,23 @@ function drawPanel(x,y,w,h,img,label){
 
   }
 
-  //
-  // CUT LINE
-  //
-
   rect(x,y,w,h,false);
 
-  //
-  // OPTIONAL LABEL
-  //
+  ctx.fillStyle='rgba(255,255,255,.85)';
+  ctx.fillRect(x+w/2-45,y+h/2-15,90,30);
 
-  drawPanelLabel(label,x+w/2,y+h/2);
+  ctx.fillStyle='#000';
+  ctx.font='bold 16px Arial';
+  ctx.textAlign='center';
+  ctx.fillText(label,x+w/2,y+h/2+6);
 
 }
 
 function downloadPNG(){
 
   const link=document.createElement('a');
-
   link.download='flat-pack-apoc-template.png';
   link.href=canvas.toDataURL();
-
   link.click();
 
 }
