@@ -1,160 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Flat Pack APOC - Box Template Maker</title>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flat Pack APOC</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-*{
-  box-sizing:border-box;
-}
-
-body{
-  margin:0;
-  font-family:Arial,Helvetica,sans-serif;
-  background:#202020;
-  color:#f5f5f5;
-}
-
-header{
-  padding:22px;
-  background:#111;
-  border-bottom:3px solid #d0a53b;
-}
-
-header h1{
-  margin:0 0 6px;
-  font-size:28px;
-}
-
-header p{
-  margin:0;
-  color:#ccc;
-}
-
-.wrap{
-  display:grid;
-  grid-template-columns:390px 1fr;
-  gap:20px;
-  padding:20px;
-}
-
-.panel{
-  background:#2d2d2d;
-  border:1px solid #444;
-  border-radius:12px;
-  padding:18px;
-  box-shadow:0 6px 20px rgba(0,0,0,.35);
-}
-
-h2{
-  margin-top:0;
-  font-size:20px;
-  color:#ffd66b;
-}
-
-label{
-  display:block;
-  margin:14px 0 6px;
-  font-weight:bold;
-}
-
-input,select,button{
-  width:100%;
-  padding:10px;
-  border-radius:8px;
-  border:1px solid #666;
-  font-size:15px;
-}
-
-input,select{
-  background:#fff;
-  color:#111;
-}
-
-button{
-  margin-top:12px;
-  border:none;
-  background:#d0a53b;
-  color:#111;
-  font-weight:900;
-  cursor:pointer;
-}
-
-button:hover{
-  background:#f0c95a;
-}
-
-.note{
-  font-size:13px;
-  line-height:1.45;
-  color:#cfcfcf;
-  background:#1f1f1f;
-  padding:12px;
-  border-radius:8px;
-  margin-top:14px;
-}
-
-.canvasBox{
-  overflow:auto;
-  background:#777;
-  border-radius:12px;
-  padding:18px;
-  text-align:center;
-}
-
-canvas{
-  background:white;
-  box-shadow:0 6px 20px rgba(0,0,0,.5);
-  max-width:100%;
-  height:auto;
-}
-
-.smallGrid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-}
-
-.faceGrid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-}
-
-.previewBox{
-  background:#111;
-  border:2px solid #444;
-  border-radius:10px;
-  min-height:220px;
-  overflow:hidden;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-.previewBox img{
-  width:100%;
-  height:auto;
-  object-fit:contain;
-}
-
-.placeholder{
-  color:#777;
-  font-size:14px;
-  padding:20px;
-  line-height:1.5;
-  text-align:center;
-}
-
-@media(max-width:900px){
-  .wrap{
-    grid-template-columns:1fr;
-  }
-}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#202020;color:#f5f5f5}
+header{padding:22px;background:#111;border-bottom:3px solid #d0a53b}
+header h1{margin:0 0 6px;font-size:28px}
+header p{margin:0;color:#ccc}
+.wrap{display:grid;grid-template-columns:390px 1fr;gap:20px;padding:20px}
+.panel{background:#2d2d2d;border:1px solid #444;border-radius:12px;padding:18px}
+h2{margin-top:0;color:#ffd66b;font-size:20px}
+label{display:block;margin:14px 0 6px;font-weight:bold}
+input,select,button{width:100%;padding:10px;border-radius:8px;border:1px solid #666;font-size:15px}
+input,select{background:#fff;color:#111}
+button{margin-top:12px;border:none;background:#d0a53b;color:#111;font-weight:900;cursor:pointer}
+button:hover{background:#f0c95a}
+.smallGrid,.faceGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.note{font-size:13px;line-height:1.45;color:#ccc;background:#1f1f1f;padding:12px;border-radius:8px;margin-top:14px}
+.previewBox{background:#111;border:2px solid #444;border-radius:10px;min-height:220px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.previewBox img{display:none;width:100%;height:auto;object-fit:contain}
+.placeholder{color:#777;font-size:14px;text-align:center;padding:20px}
+.canvasBox{overflow:auto;background:#777;border-radius:12px;padding:18px;text-align:center}
+canvas{background:#fff;box-shadow:0 6px 20px rgba(0,0,0,.5);max-width:100%;height:auto}
+@media(max-width:900px){.wrap{grid-template-columns:1fr}}
 </style>
 </head>
 
@@ -162,7 +35,7 @@ canvas{
 
 <header>
 <h1>Flat Pack APOC - Boxed Building Template Maker</h1>
-<p>Upload building renders and create printable papercraft templates.</p>
+<p>Upload building renders and create a printable papercraft cut-out.</p>
 </header>
 
 <div class="wrap">
@@ -170,19 +43,18 @@ canvas{
 <div class="panel">
 
 <h2>Building Preview</h2>
-
 <div class="previewBox">
-  <img id="previewRenderImg" style="display:none;">
-  <div id="previewPlaceholder" class="placeholder">
-    Upload a 3D beauty render here.<br><br>
-    This image appears above the cut-out template.
-  </div>
+<img id="previewRenderImg">
+<div id="previewPlaceholder" class="placeholder">
+Upload a 3D beauty render here.<br><br>
+This prints above the cut-out.
+</div>
 </div>
 
 <label>3D Preview Render</label>
 <input type="file" id="previewImg" accept="image/*">
 
-<h2 style="margin-top:24px;">1. Upload Images</h2>
+<h2 style="margin-top:24px;">1. Upload Template Images</h2>
 
 <label>Front Render</label>
 <input type="file" id="frontImg" accept="image/*">
@@ -199,81 +71,34 @@ canvas{
 <label>Top / Roof Render</label>
 <input type="file" id="topImg" accept="image/*">
 
-<label>Sky / Background</label>
+<label>Optional Sky / Background</label>
 <input type="file" id="bgImg" accept="image/*">
 
 <h2 style="margin-top:24px;">2. Building Size</h2>
 
 <div class="smallGrid">
-
-<div>
-<label>Width mm</label>
-<input type="number" id="boxW" value="100">
+<div><label>Width mm</label><input type="number" id="boxW" value="100" min="10"></div>
+<div><label>Depth mm</label><input type="number" id="boxD" value="50" min="10"></div>
+<div><label>Height mm</label><input type="number" id="boxH" value="55" min="10"></div>
+<div><label>Glue Tab mm</label><input type="number" id="tabSize" value="8" min="3"></div>
 </div>
 
-<div>
-<label>Depth mm</label>
-<input type="number" id="boxD" value="50">
-</div>
-
-<div>
-<label>Height mm</label>
-<input type="number" id="boxH" value="55">
-</div>
-
-<div>
-<label>Glue Tab mm</label>
-<input type="number" id="tabSize" value="8">
-</div>
-
-</div>
-
-<label>Image Fit Mode</label>
-
-<select id="fitMode">
-<option value="whole">Whole Uploaded Image</option>
-<option value="fill" selected>Crop To Fill Panel</option>
-<option value="width">Width Crop Only</option>
+<label>Paper Size</label>
+<select id="paperSize">
+<option value="a4">A4 Portrait</option>
+<option value="letter">US Letter Portrait</option>
+<option value="a3">A3 Portrait</option>
 </select>
 
-<div class="smallGrid">
-
-<div>
-<label>Sheet Preview Size %</label>
-<input type="number" id="sheetPreviewSize" value="30">
-</div>
-
-<div>
-<label>Image Zoom %</label>
-<input type="number" id="imageZoom" value="100">
-</div>
-
-<div>
-<label>Vertical Move %</label>
-<input type="number" id="imageMoveY" value="0">
-</div>
-
-<div>
-<label>Top Safe Padding %</label>
-<input type="number" id="topSafePad" value="15">
-</div>
-
-</div>
-
-<label>
-<input type="checkbox" id="autoCrop" checked style="width:auto;margin-right:8px;">
-Auto-crop transparent / black edges
-</label>
-
-<label>
-<input type="checkbox" id="useBackground" checked style="width:auto;margin-right:8px;">
-Use uploaded background
-</label>
+<label>Print Scale</label>
+<select id="scaleMode">
+<option value="fit">Fit to Page</option>
+<option value="real">Real Size if Possible</option>
+</select>
 
 <h2 style="margin-top:24px;">3. Face Mapping</h2>
 
 <div class="faceGrid">
-
 <div>
 <label>Template Front Uses</label>
 <select id="mapFront">
@@ -313,266 +138,463 @@ Use uploaded background
 <option value="left">Left Upload</option>
 </select>
 </div>
+</div>
 
+<h2 style="margin-top:24px;">4. Image Fitting</h2>
+
+<label><input type="checkbox" id="autoCrop" checked style="width:auto;margin-right:8px;">Auto-crop black / transparent edges</label>
+<label><input type="checkbox" id="useBackground" checked style="width:auto;margin-right:8px;">Use uploaded background behind building</label>
+<label><input type="checkbox" id="showPrintLabels" style="width:auto;margin-right:8px;">Show labels on final print</label>
+
+<label>Image Fit Mode</label>
+<select id="fitMode">
+<option value="whole">Whole Uploaded Image</option>
+<option value="fill" selected>Crop To Fill Panel</option>
+<option value="width">Width Crop Only</option>
+</select>
+
+<div class="smallGrid">
+<div><label>Preview Size %</label><input type="number" id="sheetPreviewSize" value="48" min="10" max="80"></div>
+<div><label>Image Zoom %</label><input type="number" id="imageZoom" value="100" min="20" max="300"></div>
+<div><label>Vertical Move %</label><input type="number" id="imageMoveY" value="0" min="-100" max="100"></div>
+<div><label>Top Safe Padding %</label><input type="number" id="topSafePad" value="10" min="0" max="80"></div>
 </div>
 
 <button onclick="generateTemplate()">Generate Template</button>
 <button onclick="downloadPNG()">Download PNG</button>
 <button onclick="downloadPDF()">Download PDF</button>
 
+<div class="note">
+Render from Cinema 4D using Parallel / Orthographic view. Transparent PNGs work best.
+</div>
+
 </div>
 
 <div class="panel">
-
 <h2>Preview</h2>
-
 <div class="canvasBox">
 <canvas id="templateCanvas"></canvas>
 </div>
-
 </div>
 
 </div>
 
 <script>
-
-const canvas=document.getElementById('templateCanvas');
-const ctx=canvas.getContext('2d');
+const canvas=document.getElementById("templateCanvas");
+const ctx=canvas.getContext("2d");
 
 let loaded={
-  preview:null,
-  front:null,
-  back:null,
-  left:null,
-  right:null,
-  top:null,
-  bg:null
+preview:null,
+front:null,
+back:null,
+left:null,
+right:null,
+top:null,
+bg:null
 };
 
-[
-['previewImg','preview'],
-['frontImg','front'],
-['backImg','back'],
-['leftImg','left'],
-['rightImg','right'],
-['topImg','top'],
-['bgImg','bg']
-].forEach(([id,key])=>{
-
-  document.getElementById(id).addEventListener('change',e=>{
-
-    const file=e.target.files[0];
-    if(!file)return;
-
-    const reader=new FileReader();
-
-    reader.onload=ev=>{
-
-      const img=new Image();
-
-      img.onload=()=>{
-
-        loaded[key]=img;
-
-        if(key==='preview'){
-          document.getElementById('previewRenderImg').src=ev.target.result;
-          document.getElementById('previewRenderImg').style.display='block';
-          document.getElementById('previewPlaceholder').style.display='none';
-        }
-
-        generateTemplate();
-
-      };
-
-      img.src=ev.target.result;
-
-    };
-
-    reader.readAsDataURL(file);
-
-  });
-
-});
-
-[
-'boxW',
-'boxD',
-'boxH',
-'tabSize',
-'imageZoom',
-'imageMoveY',
-'topSafePad',
-'fitMode',
-'sheetPreviewSize',
-'autoCrop',
-'useBackground',
-'mapFront',
-'mapBack',
-'mapLeft',
-'mapRight'
-].forEach(id=>{
-
-  const el=document.getElementById(id);
-
-  el.addEventListener('input',generateTemplate);
-  el.addEventListener('change',generateTemplate);
-
-});
-
-function line(x1,y1,x2,y2,dashed=false,colour='#000',width=2){
-
-  ctx.save();
-
-  if(dashed){
-    ctx.strokeStyle='#999';
-    ctx.lineWidth=1;
-    ctx.setLineDash([3,4]);
-  }else{
-    ctx.strokeStyle=colour;
-    ctx.lineWidth=width;
-  }
-
-  ctx.beginPath();
-  ctx.moveTo(x1,y1);
-  ctx.lineTo(x2,y2);
-  ctx.stroke();
-
-  ctx.restore();
-}
-
-function rect(x,y,w,h,dashed=false){
-  line(x,y,x+w,y,dashed);
-  line(x+w,y,x+w,y+h,dashed);
-  line(x+w,y+h,x,y+h,dashed);
-  line(x,y+h,x,y,dashed);
-}
-
-function getMappedImage(id){
-  return loaded[document.getElementById(id).value];
-}
-
-function generateTemplate(){
-
-  canvas.width=1400;
-  canvas.height=1900;
-
-  ctx.fillStyle='#fff';
-  ctx.fillRect(0,0,canvas.width,canvas.height);
-
-  const W=Number(boxW.value)*5;
-  const D=Number(boxD.value)*5;
-  const H=Number(boxH.value)*5;
-  const T=Number(tabSize.value)*5;
-
-  const startX=(canvas.width-(D+W+D+W+T))/2;
-  const startY=700;
-
-  if(loaded.preview){
-
-    const maxW=canvas.width*0.42;
-    const maxH=canvas.height*(sheetPreviewSize.value/100);
-
-    let drawW=maxW;
-    let drawH=maxW*(loaded.preview.height/loaded.preview.width);
-
-    if(drawH>maxH){
-      drawH=maxH;
-      drawW=maxH*(loaded.preview.width/loaded.preview.height);
-    }
-
-    ctx.drawImage(
-      loaded.preview,
-      (canvas.width-drawW)/2,
-      100,
-      drawW,
-      drawH
-    );
-
-  }
-
-  drawPanel(startX,startY+D,W,H,getMappedImage('mapFront'),'FRONT');
-  drawPanel(startX+W,startY+D,D,H,getMappedImage('mapRight'),'RIGHT');
-  drawPanel(startX+W+D,startY+D,W,H,getMappedImage('mapBack'),'BACK');
-  drawPanel(startX+W+D+W,startY+D,D,H,getMappedImage('mapLeft'),'LEFT');
-
-  drawPanel(startX+W,startY,W,D,loaded.top,'TOP');
-
-  line(startX+W,startY,startX+W,startY+D,true);
-  line(startX+W+D,startY+D,startX+W+D,startY+D+H,true);
-  line(startX+W+D+W,startY+D,startX+W+D+W,startY+D+H,true);
-
-}
-
-function drawPanel(x,y,w,h,img,label){
-
-  if(useBackground.checked && loaded.bg){
-    ctx.drawImage(loaded.bg,x,y,w,h);
-  }
-
-  if(img){
-
-    let drawX=x;
-    let drawY=y;
-    let drawW=w;
-    let drawH=h;
-
-    const zoom=imageZoom.value/100;
-    const topPad=topSafePad.value/100;
-
-    drawY+=h*topPad;
-    drawH-=h*topPad;
-
-    drawW*=zoom;
-    drawH*=zoom;
-
-    drawX+=(w-drawW)/2;
-    drawY+=(h-drawH)/2 + (imageMoveY.value*2);
-
-    ctx.drawImage(img,drawX,drawY,drawW,drawH);
-
-  }
-
-  rect(x,y,w,h,false);
-
-  ctx.fillStyle='rgba(255,255,255,.85)';
-  ctx.fillRect(x+w/2-45,y+h/2-15,90,30);
-
-  ctx.fillStyle='#000';
-  ctx.font='bold 16px Arial';
-  ctx.textAlign='center';
-  ctx.fillText(label,x+w/2,y+h/2+6);
-
-}
-
-function downloadPNG(){
-
-  const link=document.createElement('a');
-  link.download='flat-pack-apoc-template.png';
-  link.href=canvas.toDataURL();
-  link.click();
-
-}
-
-function downloadPDF(){
-
-  const {jsPDF}=window.jspdf;
-
-  const pdf=new jsPDF({
-    orientation:'portrait',
-    unit:'mm',
-    format:'a4'
-  });
-
-  const img=canvas.toDataURL('image/png');
-
-  pdf.addImage(img,'PNG',0,0,210,297);
-
-  pdf.save('flat-pack-apoc-template.pdf');
-
+const uploadMap=[
+["previewImg","preview"],
+["frontImg","front"],
+["backImg","back"],
+["leftImg","left"],
+["rightImg","right"],
+["topImg","top"],
+["bgImg","bg"]
+];
+
+uploadMap.forEach(([inputId,key])=>{
+document.getElementById(inputId).addEventListener("change",e=>{
+const file=e.target.files[0];
+if(!file)return;
+
+const reader=new FileReader();
+reader.onload=ev=>{
+const img=new Image();
+img.onload=()=>{
+loaded[key]=img;
+
+if(key==="preview"){
+const p=document.getElementById("previewRenderImg");
+const ph=document.getElementById("previewPlaceholder");
+p.src=ev.target.result;
+p.style.display="block";
+ph.style.display="none";
 }
 
 generateTemplate();
+};
+img.src=ev.target.result;
+};
+reader.readAsDataURL(file);
+});
+});
 
+[
+"boxW","boxD","boxH","tabSize","paperSize","scaleMode",
+"mapFront","mapBack","mapLeft","mapRight",
+"autoCrop","useBackground","showPrintLabels","fitMode",
+"sheetPreviewSize","imageZoom","imageMoveY","topSafePad"
+].forEach(id=>{
+const el=document.getElementById(id);
+el.addEventListener("input",generateTemplate);
+el.addEventListener("change",generateTemplate);
+});
+
+function getPaper(){
+const p=document.getElementById("paperSize").value;
+if(p==="a3")return{mmW:297,mmH:420,pxW:1754,pxH:2480,pdf:"a3"};
+if(p==="letter")return{mmW:215.9,mmH:279.4,pxW:1275,pxH:1650,pdf:"letter"};
+return{mmW:210,mmH:297,pxW:1240,pxH:1754,pdf:"a4"};
+}
+
+function mmToPx(mm,scale){return mm*scale}
+
+function sourceFor(id){
+return loaded[document.getElementById(id).value];
+}
+
+function drawLine(x1,y1,x2,y2,dashed=false,colour="#000",width=2){
+ctx.save();
+ctx.strokeStyle=dashed ? "#999999" : colour;
+ctx.lineWidth=dashed ? 1 : width;
+if(dashed)ctx.setLineDash([3,4]);
+ctx.beginPath();
+ctx.moveTo(x1,y1);
+ctx.lineTo(x2,y2);
+ctx.stroke();
+ctx.restore();
+}
+
+function drawRect(x,y,w,h){
+ctx.save();
+ctx.strokeStyle="#000";
+ctx.lineWidth=2;
+ctx.strokeRect(x,y,w,h);
+ctx.restore();
+}
+
+function drawTab(points){
+ctx.save();
+ctx.fillStyle="#fff7d2";
+ctx.strokeStyle="#000";
+ctx.lineWidth=2;
+ctx.beginPath();
+ctx.moveTo(points[0][0],points[0][1]);
+for(let i=1;i<points.length;i++)ctx.lineTo(points[i][0],points[i][1]);
+ctx.closePath();
+ctx.fill();
+ctx.stroke();
+ctx.restore();
+}
+
+function drawLabel(text,x,y){
+if(!document.getElementById("showPrintLabels").checked)return;
+ctx.save();
+ctx.fillStyle="rgba(255,255,255,.85)";
+ctx.fillRect(x-45,y-15,90,25);
+ctx.fillStyle="#000";
+ctx.font="bold 14px Arial";
+ctx.textAlign="center";
+ctx.textBaseline="middle";
+ctx.fillText(text,x,y);
+ctx.restore();
+}
+
+function getAutoCropBounds(img){
+const temp=document.createElement("canvas");
+const tctx=temp.getContext("2d",{willReadFrequently:true});
+const maxSize=900;
+const s=Math.min(1,maxSize/Math.max(img.width,img.height));
+temp.width=Math.max(1,Math.round(img.width*s));
+temp.height=Math.max(1,Math.round(img.height*s));
+tctx.drawImage(img,0,0,temp.width,temp.height);
+
+const data=tctx.getImageData(0,0,temp.width,temp.height).data;
+let minX=temp.width,minY=temp.height,maxX=0,maxY=0,found=false;
+
+for(let y=0;y<temp.height;y++){
+for(let x=0;x<temp.width;x++){
+const i=(y*temp.width+x)*4;
+const r=data[i],g=data[i+1],b=data[i+2],a=data[i+3];
+const brightness=(r+g+b)/3;
+if(a>20 && brightness>14){
+found=true;
+minX=Math.min(minX,x);
+minY=Math.min(minY,y);
+maxX=Math.max(maxX,x);
+maxY=Math.max(maxY,y);
+}
+}
+}
+
+if(!found)return{sx:0,sy:0,sw:img.width,sh:img.height};
+
+const pad=6;
+minX=Math.max(0,minX-pad);
+minY=Math.max(0,minY-pad);
+maxX=Math.min(temp.width,maxX+pad);
+maxY=Math.min(temp.height,maxY+pad);
+
+return{
+sx:minX/s,
+sy:minY/s,
+sw:(maxX-minX)/s,
+sh:(maxY-minY)/s
+};
+}
+
+function cropToPanelRatio(crop,panelRatio){
+let{sx,sy,sw,sh}=crop;
+const cropRatio=sw/sh;
+
+if(cropRatio>panelRatio){
+const newW=sh*panelRatio;
+sx+=(sw-newW)/2;
+sw=newW;
+}else if(cropRatio<panelRatio){
+const newH=sw/panelRatio;
+sy+=(sh-newH)/2;
+sh=newH;
+}
+
+return{sx,sy,sw,sh};
+}
+
+function cropWidthOnly(crop,panelRatio){
+let{sx,sy,sw,sh}=crop;
+const targetW=sh*panelRatio;
+if(sw>targetW){
+sx+=(sw-targetW)/2;
+sw=targetW;
+}
+return{sx,sy,sw,sh};
+}
+
+function drawBackground(bg,x,y,w,h){
+if(!bg)return;
+
+const bgRatio=bg.width/bg.height;
+const panelRatio=w/h;
+
+let sx=0,sy=0,sw=bg.width,sh=bg.height;
+
+if(bgRatio>panelRatio){
+sw=bg.height*panelRatio;
+sx=(bg.width-sw)/2;
+}else{
+sh=bg.width/panelRatio;
+sy=(bg.height-sh)/2;
+}
+
+ctx.drawImage(bg,sx,sy,sw,sh,x,y,w,h);
+}
+
+function drawImagePanel(img,x,y,w,h,label){
+ctx.save();
+
+ctx.fillStyle="#f2f2f2";
+ctx.fillRect(x,y,w,h);
+
+if(document.getElementById("useBackground").checked && loaded.bg){
+drawBackground(loaded.bg,x,y,w,h);
+}
+
+if(img){
+const useCrop=document.getElementById("autoCrop").checked;
+const fitMode=document.getElementById("fitMode").value;
+const zoom=(Number(document.getElementById("imageZoom").value)||100)/100;
+const moveY=(Number(document.getElementById("imageMoveY").value)||0)/100;
+const topSafe=(Number(document.getElementById("topSafePad").value)||0)/100;
+
+const safeY=y+(h*topSafe);
+const safeH=h*(1-topSafe);
+
+let crop=useCrop ? getAutoCropBounds(img) : {sx:0,sy:0,sw:img.width,sh:img.height};
+
+if(fitMode==="fill")crop=cropToPanelRatio(crop,w/safeH);
+if(fitMode==="width")crop=cropWidthOnly(crop,w/safeH);
+
+let drawW,drawH;
+
+if(fitMode==="fill"){
+drawW=w*zoom;
+drawH=safeH*zoom;
+}else{
+const imgRatio=crop.sw/crop.sh;
+const boxRatio=w/safeH;
+if(imgRatio>boxRatio){
+drawW=w*zoom;
+drawH=(w/imgRatio)*zoom;
+}else{
+drawH=safeH*zoom;
+drawW=(safeH*imgRatio)*zoom;
+}
+}
+
+const drawX=x+(w-drawW)/2;
+const drawY=safeY+(safeH-drawH)/2+(h*moveY);
+
+ctx.beginPath();
+ctx.rect(x,y,w,h);
+ctx.clip();
+ctx.drawImage(img,crop.sx,crop.sy,crop.sw,crop.sh,drawX,drawY,drawW,drawH);
+}
+
+ctx.restore();
+
+drawRect(x,y,w,h);
+drawLabel(label,x+w/2,y+h/2);
+}
+
+function drawPreviewImage(x,y,maxW,maxH){
+if(!loaded.preview)return 0;
+
+const img=loaded.preview;
+const imgRatio=img.width/img.height;
+const boxRatio=maxW/maxH;
+
+let drawW,drawH;
+
+if(imgRatio>boxRatio){
+drawW=maxW;
+drawH=maxW/imgRatio;
+}else{
+drawH=maxH;
+drawW=maxH*imgRatio;
+}
+
+ctx.drawImage(img,x+(maxW-drawW)/2,y,drawW,drawH);
+return drawH;
+}
+
+function generateTemplate(){
+const paper=getPaper();
+canvas.width=paper.pxW;
+canvas.height=paper.pxH;
+
+ctx.fillStyle="#fff";
+ctx.fillRect(0,0,canvas.width,canvas.height);
+
+const boxWmm=Number(document.getElementById("boxW").value)||100;
+const boxDmm=Number(document.getElementById("boxD").value)||50;
+const boxHmm=Number(document.getElementById("boxH").value)||55;
+const tabMm=Number(document.getElementById("tabSize").value)||8;
+
+const margin=70;
+const availableW=canvas.width-margin*2;
+const availableH=canvas.height-margin*2;
+
+const netWmm=boxDmm+boxWmm+boxDmm+boxWmm+tabMm;
+const netHmm=tabMm+boxDmm+boxHmm;
+
+let scale=paper.pxW/paper.mmW;
+
+if(document.getElementById("scaleMode").value==="fit"){
+scale=Math.min(availableW/netWmm,availableH/(netHmm*1.65));
+}
+
+const W=mmToPx(boxWmm,scale);
+const D=mmToPx(boxDmm,scale);
+const H=mmToPx(boxHmm,scale);
+const T=mmToPx(tabMm,scale);
+
+ctx.fillStyle="#111";
+ctx.font="bold 28px Arial";
+ctx.textAlign="center";
+ctx.fillText("Flat Pack APOC Cut-Out Template",canvas.width/2,42);
+ctx.font="16px Arial";
+ctx.fillText("Cut solid lines. Fold dotted lines. Glue the pale yellow tabs.",canvas.width/2,68);
+
+let previewBottom=88;
+
+if(loaded.preview){
+const previewMaxW=canvas.width*0.68;
+const previewMaxH=canvas.height*((Number(document.getElementById("sheetPreviewSize").value)||48)/100)*0.45;
+const usedH=drawPreviewImage((canvas.width-previewMaxW)/2,88,previewMaxW,previewMaxH);
+previewBottom=88+usedH+25;
+}
+
+const totalW=D+W+D+W+T;
+const startX=(canvas.width-totalW)/2;
+const startY=Math.max(previewBottom,canvas.height-(T+D+H)-330);
+
+const leftX=startX;
+const frontX=leftX+D;
+const rightX=frontX+W;
+const backX=rightX+D;
+const tabX=backX+W;
+
+const topY=startY+T;
+const midY=topY+D;
+
+drawTab([
+[frontX+T,topY-T],
+[frontX+W-T,topY-T],
+[frontX+W,topY],
+[frontX,topY]
+]);
+
+drawImagePanel(loaded.top,frontX,topY,W,D,"TOP");
+
+drawImagePanel(sourceFor("mapLeft"),leftX,midY,D,H,"LEFT");
+drawImagePanel(sourceFor("mapFront"),frontX,midY,W,H,"FRONT");
+drawImagePanel(sourceFor("mapRight"),rightX,midY,D,H,"RIGHT");
+drawImagePanel(sourceFor("mapBack"),backX,midY,W,H,"BACK");
+
+drawTab([
+[tabX,midY],
+[tabX+T,midY+T],
+[tabX+T,midY+H-T],
+[tabX,midY+H]
+]);
+
+drawTab([
+[frontX,topY],
+[frontX-T,topY+T],
+[frontX-T,topY+D-T],
+[frontX,topY+D]
+]);
+
+drawTab([
+[frontX+W,topY],
+[frontX+W+T,topY+T],
+[frontX+W+T,topY+D-T],
+[frontX+W,topY+D]
+]);
+
+drawLine(frontX,topY,frontX+W,topY,true);
+drawLine(frontX,topY+D,frontX+W,topY+D,true);
+
+drawLine(frontX,midY,frontX,midY+H,true);
+drawLine(rightX,midY,rightX,midY+H,true);
+drawLine(backX,midY,backX,midY+H,true);
+drawLine(tabX,midY,tabX,midY+H,true);
+
+drawLine(frontX,topY,frontX,topY+D,true);
+drawLine(frontX+W,topY,frontX+W,topY+D,true);
+}
+
+function downloadPNG(){
+generateTemplate();
+const a=document.createElement("a");
+a.download="flat-pack-apoc-template.png";
+a.href=canvas.toDataURL("image/png");
+a.click();
+}
+
+function downloadPDF(){
+generateTemplate();
+const paper=getPaper();
+const{jsPDF}=window.jspdf;
+const pdf=new jsPDF({orientation:"portrait",unit:"mm",format:paper.pdf});
+const pageW=pdf.internal.pageSize.getWidth();
+const pageH=pdf.internal.pageSize.getHeight();
+pdf.addImage(canvas.toDataURL("image/png",1),"PNG",0,0,pageW,pageH);
+pdf.save("flat-pack-apoc-template.pdf");
+}
+
+generateTemplate();
 </script>
 
 </body>
