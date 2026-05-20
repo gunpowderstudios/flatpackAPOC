@@ -42,6 +42,7 @@
       <label>Left render</label><input type="file" id="leftImg" accept="image/*">
       <label>Right render</label><input type="file" id="rightImg" accept="image/*">
       <label>Top / Roof render</label><input type="file" id="topImg" accept="image/*">
+      <label>Optional Sky / Background</label><input type="file" id="bgImg" accept="image/*">
 
       <h2 style="margin-top:24px;">2. Building Size</h2>
       <div class="smallGrid">
@@ -67,10 +68,18 @@
 
       <h2 style="margin-top:24px;">4. Image Fitting</h2>
       <label><input type="checkbox" id="autoCrop" checked style="width:auto;margin-right:8px;">Auto-crop black / transparent edges</label>
-      <label><input type="checkbox" id="cropWidthOnly" checked style="width:auto;margin-right:8px;">Crop width evenly to fill panels</label>
+      <label><input type="checkbox" id="useBackground" checked style="width:auto;margin-right:8px;">Use uploaded background behind building</label>
+      <label>Image Fit Mode</label>
+      <select id="fitMode">
+        <option value="whole">Whole uploaded image - no crop to panel</option>
+        <option value="fill" selected>Crop to fill panel</option>
+        <option value="width">Width crop only - good for matching roof/walls</option>
+      </select>
       <div class="smallGrid">
         <div><label>Image Zoom %</label><input type="number" id="imageZoom" value="100" min="20" max="300"></div>
         <div><label>Vertical Move %</label><input type="number" id="imageMoveY" value="0" min="-100" max="100"></div>
+        <div><label>Top Safe Padding %</label><input type="number" id="topSafePad" value="10" min="0" max="80"></div>
+        <div><label>Bottom Safe Padding %</label><input type="number" id="bottomSafePad" value="0" min="0" max="80"></div>
       </div>
 
       <button onclick="generateTemplate()">Generate Template</button>
@@ -89,9 +98,9 @@
 <script>
 const canvas = document.getElementById('templateCanvas');
 const ctx = canvas.getContext('2d');
-let loaded = { front:null, back:null, left:null, right:null, top:null };
+let loaded = { front:null, back:null, left:null, right:null, top:null, bg:null };
 
-[['frontImg','front'],['backImg','back'],['leftImg','left'],['rightImg','right'],['topImg','top']].forEach(([id,key])=>{
+[['frontImg','front'],['backImg','back'],['leftImg','left'],['rightImg','right'],['topImg','top'],['bgImg','bg']].forEach(([id,key])=>{
   document.getElementById(id).addEventListener('change', e=>{
     const file=e.target.files[0]; if(!file) return;
     const reader=new FileReader();
@@ -100,7 +109,7 @@ let loaded = { front:null, back:null, left:null, right:null, top:null };
   });
 });
 
-['autoCrop','cropWidthOnly','imageZoom','imageMoveY','boxW','boxD','boxH','tabSize','paperSize','scaleMode','mapFront','mapBack','mapLeft','mapRight'].forEach(id=>{
+['autoCrop','useBackground','fitMode','imageZoom','imageMoveY','topSafePad','bottomSafePad','boxW','boxD','boxH','tabSize','paperSize','scaleMode','mapFront','mapBack','mapLeft','mapRight'].forEach(id=>{
   const el=document.getElementById(id);
   el.addEventListener('input', generateTemplate);
   el.addEventListener('change', generateTemplate);
@@ -141,8 +150,7 @@ function getAutoCropBounds(img){
 }
 
 function cropToPanelRatio(crop, panelRatio){
-  // Crop evenly from left/right or top/bottom so the image fills the panel without distortion.
-  // This is the bit that makes a wide church wall fit a wide panel properly.
+  // Crops evenly so the image completely fills the panel without distortion.
   let {sx,sy,sw,sh}=crop;
   const cropRatio=sw/sh;
   if(cropRatio>panelRatio){
@@ -157,29 +165,72 @@ function cropToPanelRatio(crop, panelRatio){
   return {sx,sy,sw,sh};
 }
 
+function cropWidthOnlyToPanel(crop, panelRatio){
+  // Only crops left/right. It never crops height.
+  // Useful when towers or tall roofs must remain visible.
+  let {sx,sy,sw,sh}=crop;
+  const targetW = sh * panelRatio;
+  if(sw > targetW){
+    sx += (sw-targetW)/2;
+    sw = targetW;
+  }
+  return {sx,sy,sw,sh};
+}
+
+function drawBackgroundToPanel(bg,x,y,w,h){
+  if(!bg) return;
+  const bgRatio = bg.width / bg.height;
+  const panelRatio = w / h;
+  let sx=0, sy=0, sw=bg.width, sh=bg.height;
+
+  if(bgRatio > panelRatio){
+    sw = bg.height * panelRatio;
+    sx = (bg.width - sw) / 2;
+  } else {
+    sh = bg.width / panelRatio;
+    sy = (bg.height - sh) / 2;
+  }
+
+  ctx.drawImage(bg, sx, sy, sw, sh, x, y, w, h);
+}
+
 function drawImagePanel(img,x,y,w,h,labelText){
   ctx.save();
   ctx.fillStyle='#f2f2f2'; ctx.fillRect(x,y,w,h);
+  const useBG = document.getElementById('useBackground').checked;
+  if(useBG && loaded.bg){
+    drawBackgroundToPanel(loaded.bg, x, y, w, h);
+  }
   if(!img){
     ctx.fillStyle='#777'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.font='bold 18px Arial';
     ctx.fillText('UPLOAD IMAGE',x+w/2,y+h/2); ctx.restore(); drawPanelLabel(labelText,x+w/2,y+h/2); return;
   }
   const useCrop=document.getElementById('autoCrop').checked;
-  const fillCrop=document.getElementById('cropWidthOnly').checked;
+  const fitMode=document.getElementById('fitMode').value;
   const zoom=(Number(document.getElementById('imageZoom').value)||100)/100;
   const moveY=(Number(document.getElementById('imageMoveY').value)||0)/100;
+  const topSafe=(Number(document.getElementById('topSafePad').value)||0)/100;
+  const bottomSafe=(Number(document.getElementById('bottomSafePad').value)||0)/100;
+  const safeY = y + (h * topSafe);
+  const safeH = h * Math.max(0.1, 1 - topSafe - bottomSafe);
   let crop=useCrop?getAutoCropBounds(img):{sx:0,sy:0,sw:img.width,sh:img.height};
 
-  if(fillCrop) crop=cropToPanelRatio(crop,w/h);
+  if(fitMode === 'fill') crop = cropToPanelRatio(crop, w/h);
+  if(fitMode === 'width') crop = cropWidthOnlyToPanel(crop, w/safeH);
 
-  let drawW=w*zoom, drawH=h*zoom;
-  if(!fillCrop){
-    const imgRatio=crop.sw/crop.sh, boxRatio=w/h;
+  let drawW, drawH;
+  if(fitMode === 'fill'){
+    // Cropped to exact panel ratio, so fill the panel.
+    drawW = w * zoom;
+    drawH = safeH * zoom;
+  } else {
+    // Whole Image and Width Crop modes preserve the full remaining image proportionally.
+    const imgRatio=crop.sw/crop.sh, boxRatio=w/safeH;
     if(imgRatio>boxRatio){ drawW=w*zoom; drawH=(w/imgRatio)*zoom; }
-    else { drawH=h*zoom; drawW=(h*imgRatio)*zoom; }
+    else { drawH=safeH*zoom; drawW=(safeH*imgRatio)*zoom; }
   }
   const drawX=x+(w-drawW)/2;
-  const drawY=y+(h-drawH)/2+(h*moveY);
+  const drawY=safeY+(safeH-drawH)/2+(h*moveY);
   ctx.beginPath(); ctx.rect(x,y,w,h); ctx.clip();
   ctx.drawImage(img,crop.sx,crop.sy,crop.sw,crop.sh,drawX,drawY,drawW,drawH);
   ctx.restore();
