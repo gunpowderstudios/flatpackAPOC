@@ -36,13 +36,19 @@
 
   <div class="wrap">
     <div class="panel">
-      <h2>Building Preview Guide</h2>
+      <h2>Building Preview</h2>
       <div style="background:#111;padding:12px;border-radius:10px;margin-bottom:18px;text-align:center;">
-        <img src="Main.png" alt="Building preview guide" style="width:100%;border-radius:8px;border:2px solid #444;object-fit:cover;">
-        <div style="font-size:12px;color:#bbb;margin-top:8px;line-height:1.4;">
-          Example building render. Render FRONT, BACK, LEFT, RIGHT and TOP views from Cinema 4D using Parallel projection and transparent PNG output.
+        <div id="previewRenderWrap" style="width:100%;min-height:220px;border-radius:8px;border:2px solid #444;background:#1a1a1a;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+          <img id="previewRenderImg" src="" alt="3D Building Preview" style="display:none;width:100%;height:auto;object-fit:contain;">
+          <div id="previewPlaceholder" style="color:#777;font-size:14px;padding:20px;line-height:1.5;">
+            Upload a beauty render / 3D preview image here.<br><br>
+            This image will also be printed on the white sheet above the cut-out template.
+          </div>
         </div>
       </div>
+
+      <label>3D Preview Render (optional)</label>
+      <input type="file" id="previewImg" accept="image/*">
 
       <h2>1. Upload Images</h2>
       <label>Front render</label><input type="file" id="frontImg" accept="image/*">
@@ -84,6 +90,11 @@
         <option value="width">Width crop only - good for matching roof/walls</option>
       </select>
       <div class="smallGrid">
+        <div><label>Sheet Preview Size %</label><input type="number" id="sheetPreviewSize" value="30" min="10" max="80"></div>
+        <div><label>Sheet Preview Gap</label><input type="number" id="sheetPreviewGap" value="10" min="0" max="80"></div>
+      </div>
+
+      <div class="smallGrid">
         <div><label>Image Zoom %</label><input type="number" id="imageZoom" value="100" min="20" max="300"></div>
         <div><label>Vertical Move %</label><input type="number" id="imageMoveY" value="0" min="-100" max="100"></div>
         <div><label>Top Safe Padding %</label><input type="number" id="topSafePad" value="10" min="0" max="80"></div>
@@ -106,18 +117,35 @@
 <script>
 const canvas = document.getElementById('templateCanvas');
 const ctx = canvas.getContext('2d');
-let loaded = { front:null, back:null, left:null, right:null, top:null, bg:null };
+let loaded = { front:null, back:null, left:null, right:null, top:null, bg:null, preview:null };
 
-[['frontImg','front'],['backImg','back'],['leftImg','left'],['rightImg','right'],['topImg','top'],['bgImg','bg']].forEach(([id,key])=>{
+[['previewImg','preview'],['frontImg','front'],['backImg','back'],['leftImg','left'],['rightImg','right'],['topImg','top'],['bgImg','bg']].forEach(([id,key])=>{
   document.getElementById(id).addEventListener('change', e=>{
     const file=e.target.files[0]; if(!file) return;
     const reader=new FileReader();
-    reader.onload=ev=>{ const img=new Image(); img.onload=()=>{ loaded[key]=img; generateTemplate(); }; img.src=ev.target.result; };
+    reader.onload=ev=>{ 
+      const img=new Image(); 
+      img.onload=()=>{ 
+        loaded[key]=img; 
+
+        // Update big 3D preview area
+        if(key === 'preview'){
+          const previewEl = document.getElementById('previewRenderImg');
+          const placeholderEl = document.getElementById('previewPlaceholder');
+          previewEl.src = ev.target.result;
+          previewEl.style.display = 'block';
+          placeholderEl.style.display = 'none';
+        }
+
+        generateTemplate(); 
+      }; 
+      img.src=ev.target.result; 
+    };
     reader.readAsDataURL(file);
   });
 });
 
-['autoCrop','useBackground','fitMode','imageZoom','imageMoveY','topSafePad','bottomSafePad','boxW','boxD','boxH','tabSize','paperSize','scaleMode','mapFront','mapBack','mapLeft','mapRight'].forEach(id=>{
+['autoCrop','useBackground','fitMode','sheetPreviewSize','sheetPreviewGap','imageZoom','imageMoveY','topSafePad','bottomSafePad','boxW','boxD','boxH','tabSize','paperSize','scaleMode','mapFront','mapBack','mapLeft','mapRight'].forEach(id=>{
   const el=document.getElementById(id);
   el.addEventListener('input', generateTemplate);
   el.addEventListener('change', generateTemplate);
@@ -251,6 +279,27 @@ function rect(x,y,w,h,dashed=false,colour='#000',width=2){ ctx.save(); ctx.strok
 function drawTab(points){ ctx.save(); ctx.fillStyle='#fff7d2'; ctx.strokeStyle='#000'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(points[0][0],points[0][1]); for(let i=1;i<points.length;i++)ctx.lineTo(points[i][0],points[i][1]); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore(); }
 function drawPanelLabel(text,x,y){ ctx.save(); ctx.fillStyle='rgba(255,255,255,.82)'; ctx.fillRect(x-45,y-15,90,25); ctx.fillStyle='#000'; ctx.font='bold 14px Arial'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(text,x,y); ctx.restore(); }
 
+function drawSheetPreviewImage(x, y, maxW, maxH){
+  if(!loaded.preview) return 0;
+
+  const img = loaded.preview;
+  const imgRatio = img.width / img.height;
+  const boxRatio = maxW / maxH;
+  let drawW, drawH;
+
+  if(imgRatio > boxRatio){
+    drawW = maxW;
+    drawH = maxW / imgRatio;
+  } else {
+    drawH = maxH;
+    drawW = maxH * imgRatio;
+  }
+
+  const drawX = x + (maxW - drawW) / 2;
+  ctx.drawImage(img, drawX, y, drawW, drawH);
+  return drawH;
+}
+
 function generateTemplate(){
   const paper=getPaper(); canvas.width=paper.pxW; canvas.height=paper.pxH;
   ctx.fillStyle='#fff'; ctx.fillRect(0,0,canvas.width,canvas.height);
@@ -268,12 +317,29 @@ function generateTemplate(){
 
   const W=mmToPx(boxWmm,scale), D=mmToPx(boxDmm,scale), H=mmToPx(boxHmm,scale), T=mmToPx(tabMm,scale);
   const totalW=D+W+D+W+T, totalH=D+H+D+T;
-  const startX=(canvas.width-totalW)/2, startY=(canvas.height-totalH)/2+20;
+
+  const sheetPreviewSize = (Number(document.getElementById('sheetPreviewSize').value)||30) / 100;
+  const sheetPreviewGap = Number(document.getElementById('sheetPreviewGap').value)||10;
+  let previewAreaH = 0;
+  if(loaded.preview){
+    previewAreaH = canvas.height * sheetPreviewSize;
+  }
+
+  const startX=(canvas.width-totalW)/2;
+  const startY=(canvas.height-totalH+previewAreaH)/2+20;
   const leftX=startX, frontX=leftX+D, rightX=frontX+W, backX=rightX+D, tabX=backX+W;
   const topY=startY, midY=topY+D, bottomY=midY+H;
 
   ctx.fillStyle='#111'; ctx.font='bold 28px Arial'; ctx.textAlign='center'; ctx.fillText('Flat Pack APOC Cut-Out Template',canvas.width/2,42);
   ctx.font='16px Arial'; ctx.fillText('Cut solid lines. Fold dotted lines. Glue the pale yellow tabs.',canvas.width/2,68);
+
+  if(loaded.preview){
+    const previewMaxW = canvas.width * 0.42;
+    const previewMaxH = previewAreaH - sheetPreviewGap;
+    const previewX = (canvas.width - previewMaxW) / 2;
+    const previewY = 88;
+    drawSheetPreviewImage(previewX, previewY, previewMaxW, previewMaxH);
+  }
 
   drawImagePanel(loaded.top,frontX,topY,W,D,'TOP'); rect(frontX,topY,W,D,false);
   drawImagePanel(sourceFor('mapLeft'),leftX,midY,D,H,'LEFT');
