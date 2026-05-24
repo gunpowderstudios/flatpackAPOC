@@ -187,15 +187,10 @@ function drawRotatedImage(img,x,y,w,h,rotation){
   ctx.rotate(rotation*Math.PI/180);
 
   const rotated = rotation===90 || rotation===270;
-  const imgW = rotated ? img.height : img.width;
-  const imgH = rotated ? img.width : img.height;
-  const ratio = imgW/imgH;
-  const boxRatio = w/h;
-
-  let drawW, drawH;
 
   const mode=document.getElementById("fitMode").value;
 
+  // STRETCH MODE
   if(mode==="stretch"){
 
     if(rotated){
@@ -208,14 +203,37 @@ function drawRotatedImage(img,x,y,w,h,rotation){
     return;
   }
 
+  const imgW = rotated ? img.height : img.width;
+  const imgH = rotated ? img.width : img.height;
+
+  const ratio = imgW/imgH;
+  const boxRatio = w/h;
+
+  let drawW;
+  let drawH;
+
+  // FILL MODE
   if(mode==="fill"){
-    if(ratio>boxRatio){ drawH=h; drawW=h*ratio; }
-    else{ drawW=w; drawH=w/ratio; }
+
+    if(ratio>boxRatio){
+      drawH=h;
+      drawW=h*ratio;
+    }else{
+      drawW=w;
+      drawH=w/ratio;
+    }
+
   }else{
-    if(ratio>boxRatio){ drawW=w; drawH=w/ratio; }
-    else{ drawH=h; drawW=h*ratio; }
-  }
-    else{ drawH=h; drawW=h*ratio; }
+
+    // FIT MODE
+    if(ratio>boxRatio){
+      drawW=w;
+      drawH=w/ratio;
+    }else{
+      drawH=h;
+      drawW=h*ratio;
+    }
+
   }
 
   if(rotated){
