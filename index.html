@@ -234,6 +234,23 @@ reader.readAsDataURL(file);
 
 });
 
+// Rebuild the template automatically whenever sizes/settings change
+[
+"boxW",
+"boxD",
+"boxH",
+"tabSize",
+"paperSize",
+"fitMode"
+].forEach(id=>{
+
+const el=document.getElementById(id);
+
+el.addEventListener("input",generateTemplate);
+el.addEventListener("change",generateTemplate);
+
+});
+
 function getPaper(){
 
 const p=document.getElementById("paperSize").value;
