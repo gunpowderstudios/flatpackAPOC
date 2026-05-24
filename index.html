@@ -171,7 +171,88 @@ function generateTemplate(){
 function safeFileName(name){return(name||'apoc-building').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');}
 function downloadPNG(){generateTemplate();const a=document.createElement('a');a.download=safeFileName(document.getElementById('templateTitle').value)+'.png';a.href=canvas.toDataURL('image/png');a.click();}
 function downloadPDF(){generateTemplate();const paper=getPaper();const{jsPDF}=window.jspdf;const pdf=new jsPDF({orientation:paper.orientation,unit:'mm',format:'a4'});const pageW=pdf.internal.pageSize.getWidth();const pageH=pdf.internal.pageSize.getHeight();pdf.addImage(canvas.toDataURL('image/png',1),'PNG',0,0,pageW,pageH);pdf.save(safeFileName(document.getElementById('templateTitle').value)+'.pdf');}
-function saveProject(){const project={title:document.getElementById('templateTitle').value,settings:{width:document.getElementById('boxW').value,depth:document.getElementById('boxD').value,height:document.getElementById('boxH').value,tab:document.getElementById('tabSize').value,paperLayout:document.getElementById('paperLayout').value},rotations:{front:document.getElementById('frontRot').value,back:document.getElementById('backRot').value,left:document.getElementById('leftRot').value,right:document.getElementById('rightRot').value,top:document.getElementById('topRot').value},images:imageData};const blob=new Blob([JSON.stringify(project,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=safeFileName(project.title)+'.json';a.click();}
+function saveProject(){
+ const project={
+  title:document.getElementById('templateTitle').value,
+  settings:{
+   width:document.getElementById('boxW').value,
+   depth:document.getElementById('boxD').value,
+   height:document.getElementById('boxH').value,
+   tab:document.getElementById('tabSize').value,
+   paperLayout:document.getElementById('paperLayout').value,
+   netLayout:document.getElementById('netLayout').value,
+   scaleMode:document.getElementById('scaleMode').value,
+   fitMode:document.getElementById('fitMode').value
+  },
+  rotations:{
+   front:document.getElementById('frontRot').value,
+   back:document.getElementById('backRot').value,
+   left:document.getElementById('leftRot').value,
+   right:document.getElementById('rightRot').value,
+   top:document.getElementById('topRot').value
+  },
+  images:imageData
+ };
+ const blob=new Blob([JSON.stringify(project,null,2)],{type:'application/json'});
+ const a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);
+ a.download=safeFileName(project.title)+'.json';
+ a.click();
+ URL.revokeObjectURL(a.href);
+}
+
+function setValueIfExists(id,value){
+ const el=document.getElementById(id);
+ if(el && value!==undefined && value!==null) el.value=value;
+}
+
+document.getElementById('projectLoader').addEventListener('change',e=>{
+ const file=e.target.files[0];
+ if(!file)return;
+ const reader=new FileReader();
+ reader.onload=ev=>{
+  try{
+   const project=JSON.parse(ev.target.result);
+   setValueIfExists('templateTitle',project.title||'APOC Building');
+   const s=project.settings||{};
+   setValueIfExists('boxW',s.width);
+   setValueIfExists('boxD',s.depth);
+   setValueIfExists('boxH',s.height);
+   setValueIfExists('tabSize',s.tab);
+   setValueIfExists('paperLayout',s.paperLayout||'portrait');
+   setValueIfExists('netLayout',s.netLayout||'cross');
+   setValueIfExists('scaleMode',s.scaleMode||'actual');
+   setValueIfExists('fitMode',s.fitMode||'fill');
+
+   const r=project.rotations||{};
+   keys.forEach(key=>{
+    setValueIfExists(key+'Rot',r[key]);
+    imageData[key]=project.images&&project.images[key]?project.images[key]:null;
+    loaded[key]=null;
+   });
+
+   const imageLoaders=[];
+   keys.forEach(key=>{
+    if(imageData[key]){
+     imageLoaders.push(new Promise(resolve=>{
+      const img=new Image();
+      img.onload=()=>{loaded[key]=img;resolve();};
+      img.onerror=()=>resolve();
+      img.src=imageData[key];
+     }));
+    }
+   });
+
+   Promise.all(imageLoaders).then(()=>generateTemplate());
+  }catch(err){
+   alert('This JSON file could not be loaded. Please check it is a saved APOC building project.');
+   console.error(err);
+  }
+  e.target.value='';
+ };
+ reader.readAsText(file);
+});
+
 generateTemplate();
 </script>
 </body>
