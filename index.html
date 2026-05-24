@@ -22,12 +22,15 @@ label{ display:block; margin:12px 0 6px; font-weight:bold; }
 input,select,button{ width:100%; padding:10px; border-radius:8px; border:none; font-size:15px; }
 button{ margin-top:12px; background:#d0a53b; font-weight:bold; cursor:pointer; }
 button:hover{ background:#f0c95a; }
+button.secondary{ background:#444; color:#fff; }
+button.secondary:hover{ background:#555; }
 .smallGrid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
 .uploadBlock{ border:1px solid #444; border-radius:10px; padding:10px; margin-bottom:10px; background:#242424; }
 .uploadBlock label{ margin-top:0; }
 .canvasBox{ overflow:auto; background:#666; border-radius:12px; padding:20px; text-align:center; }
 canvas{ background:#fff; max-width:100%; height:auto; box-shadow:0 6px 20px rgba(0,0,0,.5); }
 .note{ font-size:13px; color:#ccc; line-height:1.4; margin-top:14px; }
+hr{ border:0; border-top:1px solid #444; margin:20px 0; }
 @media(max-width:900px){ .wrap{ grid-template-columns:1fr; } }
 </style>
 </head>
@@ -47,51 +50,51 @@ canvas{ background:#fff; max-width:100%; height:auto; box-shadow:0 6px 20px rgba
 <label>Template Title</label>
 <input type="text" id="templateTitle" value="APOC Hospital Building">
 
-<h2 style="margin-top:24px;">Upload Building Images</h2>
+<hr>
+
+<h2>Save / Load Building</h2>
+<button onclick="saveProject()">Save Building Project JSON</button>
+<button class="secondary" onclick="document.getElementById('projectLoader').click()">Load Building Project JSON</button>
+<input type="file" id="projectLoader" accept="application/json,.json" style="display:none;">
+<div class="note">This saves the images and all settings into one JSON file, so each building can be reloaded later.</div>
+
+<hr>
+
+<h2>Upload Building Images</h2>
 
 <div class="uploadBlock">
 <label>Front</label>
 <input type="file" id="frontImg" accept="image/*">
 <label>Rotate Front</label>
-<select id="frontRot">
-<option value="0">0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option>
-</select>
+<select id="frontRot"><option value="0">0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option></select>
 </div>
 
 <div class="uploadBlock">
 <label>Back</label>
 <input type="file" id="backImg" accept="image/*">
 <label>Rotate Back</label>
-<select id="backRot">
-<option value="0">0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option>
-</select>
+<select id="backRot"><option value="0">0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option></select>
 </div>
 
 <div class="uploadBlock">
 <label>Left</label>
 <input type="file" id="leftImg" accept="image/*">
 <label>Rotate Left</label>
-<select id="leftRot">
-<option value="0">0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option>
-</select>
+<select id="leftRot"><option value="0">0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option></select>
 </div>
 
 <div class="uploadBlock">
 <label>Right</label>
 <input type="file" id="rightImg" accept="image/*">
 <label>Rotate Right</label>
-<select id="rightRot">
-<option value="0">0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option>
-</select>
+<select id="rightRot"><option value="0">0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option></select>
 </div>
 
 <div class="uploadBlock">
 <label>Top / Roof</label>
 <input type="file" id="topImg" accept="image/*">
 <label>Rotate Top / Roof</label>
-<select id="topRot">
-<option value="0">0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option>
-</select>
+<select id="topRot"><option value="0">0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option></select>
 </div>
 
 <h2 style="margin-top:24px;">Building Size</h2>
@@ -104,17 +107,10 @@ canvas{ background:#fff; max-width:100%; height:auto; box-shadow:0 6px 20px rgba
 </div>
 
 <label>Paper Size</label>
-<select id="paperSize">
-<option value="a4">A4 Landscape</option>
-<option value="a3">A3 Landscape</option>
-</select>
+<select id="paperSize"><option value="a4">A4 Landscape</option><option value="a3">A3 Landscape</option></select>
 
 <label>Image Fit</label>
-<select id="fitMode">
-<option value="fill">Fill Panel</option>
-<option value="fit">Fit Whole Image</option>
-<option value="stretch">Stretch To Panel</option>
-</select>
+<select id="fitMode"><option value="fill">Fill Panel</option><option value="fit">Fit Whole Image</option><option value="stretch">Stretch To Panel</option></select>
 
 <button onclick="generateTemplate()">Generate Template</button>
 <button onclick="downloadPNG()">Download PNG</button>
@@ -136,7 +132,9 @@ const canvas=document.getElementById("templateCanvas");
 const ctx=canvas.getContext("2d");
 
 const loaded={ front:null, back:null, left:null, right:null, top:null };
+const imageData={ front:null, back:null, left:null, right:null, top:null };
 
+const imageKeys=["front","back","left","right","top"];
 const uploads=[
 ["frontImg","front"],
 ["backImg","back"],
@@ -151,13 +149,32 @@ uploads.forEach(([id,key])=>{
     if(!file)return;
     const reader=new FileReader();
     reader.onload=ev=>{
-      const img=new Image();
-      img.onload=()=>{ loaded[key]=img; generateTemplate(); };
-      img.src=ev.target.result;
+      imageData[key]=ev.target.result;
+      loadImageFromData(key,ev.target.result);
     };
     reader.readAsDataURL(file);
   });
 });
+
+function loadImageFromData(key,dataUrl){
+  return new Promise(resolve=>{
+    if(!dataUrl){
+      loaded[key]=null;
+      imageData[key]=null;
+      generateTemplate();
+      resolve();
+      return;
+    }
+    const img=new Image();
+    img.onload=()=>{
+      loaded[key]=img;
+      imageData[key]=dataUrl;
+      generateTemplate();
+      resolve();
+    };
+    img.src=dataUrl;
+  });
+}
 
 [
 "templateTitle","boxW","boxD","boxH","tabSize","paperSize","fitMode",
@@ -168,79 +185,49 @@ uploads.forEach(([id,key])=>{
   el.addEventListener("change",generateTemplate);
 });
 
+document.getElementById("projectLoader").addEventListener("change",loadProject);
+
 function getPaper(){
   if(document.getElementById("paperSize").value==="a3") return {width:2480,height:1754,pdf:"a3"};
   return {width:1754,height:1240,pdf:"a4"};
 }
 
-function getRotation(key){
-  return Number(document.getElementById(key+"Rot").value || 0);
-}
+function getRotation(key){ return Number(document.getElementById(key+"Rot").value || 0); }
 
 function drawRotatedImage(img,x,y,w,h,rotation){
   ctx.save();
   ctx.beginPath();
   ctx.rect(x,y,w,h);
   ctx.clip();
-
   ctx.translate(x+w/2,y+h/2);
   ctx.rotate(rotation*Math.PI/180);
 
   const rotated = rotation===90 || rotation===270;
-
   const mode=document.getElementById("fitMode").value;
 
-  // STRETCH MODE
   if(mode==="stretch"){
-
-    if(rotated){
-      ctx.drawImage(img,-h/2,-w/2,h,w);
-    }else{
-      ctx.drawImage(img,-w/2,-h/2,w,h);
-    }
-
+    if(rotated) ctx.drawImage(img,-h/2,-w/2,h,w);
+    else ctx.drawImage(img,-w/2,-h/2,w,h);
     ctx.restore();
     return;
   }
 
   const imgW = rotated ? img.height : img.width;
   const imgH = rotated ? img.width : img.height;
-
   const ratio = imgW/imgH;
   const boxRatio = w/h;
+  let drawW, drawH;
 
-  let drawW;
-  let drawH;
-
-  // FILL MODE
   if(mode==="fill"){
-
-    if(ratio>boxRatio){
-      drawH=h;
-      drawW=h*ratio;
-    }else{
-      drawW=w;
-      drawH=w/ratio;
-    }
-
+    if(ratio>boxRatio){ drawH=h; drawW=h*ratio; }
+    else{ drawW=w; drawH=w/ratio; }
   }else{
-
-    // FIT MODE
-    if(ratio>boxRatio){
-      drawW=w;
-      drawH=w/ratio;
-    }else{
-      drawH=h;
-      drawW=h*ratio;
-    }
-
+    if(ratio>boxRatio){ drawW=w; drawH=w/ratio; }
+    else{ drawH=h; drawW=h*ratio; }
   }
 
-  if(rotated){
-    ctx.drawImage(img,-drawH/2,-drawW/2,drawH,drawW);
-  }else{
-    ctx.drawImage(img,-drawW/2,-drawH/2,drawW,drawH);
-  }
+  if(rotated) ctx.drawImage(img,-drawH/2,-drawW/2,drawH,drawW);
+  else ctx.drawImage(img,-drawW/2,-drawH/2,drawW,drawH);
 
   ctx.restore();
 }
@@ -282,17 +269,14 @@ function generateTemplate(){
   const paper=getPaper();
   canvas.width=paper.width;
   canvas.height=paper.height;
-
   ctx.fillStyle="#fff";
   ctx.fillRect(0,0,canvas.width,canvas.height);
 
   const title=document.getElementById("templateTitle").value || "APOC Building Template";
-
   ctx.fillStyle="#111";
   ctx.font="bold 30px Arial";
   ctx.textAlign="center";
   ctx.fillText(title,canvas.width/2,48);
-
   ctx.font="16px Arial";
   ctx.fillText("Cut solid lines. Fold dotted lines. Glue the pale yellow tabs.",canvas.width/2,76);
 
@@ -300,10 +284,8 @@ function generateTemplate(){
   const D=Number(document.getElementById("boxD").value)*4;
   const H=Number(document.getElementById("boxH").value)*4;
   const T=Number(document.getElementById("tabSize").value)*4;
-
   const totalW=D+W+D+W+T;
   const totalH=D+H+T;
-
   const startX=(canvas.width-totalW)/2;
   const startY=((canvas.height-totalH)/2)+30;
 
@@ -312,7 +294,6 @@ function generateTemplate(){
   const rightX=frontX+W;
   const backX=rightX+D;
   const tabX=backX+W;
-
   const roofY=startY+T;
   const wallY=roofY+D;
 
@@ -332,6 +313,76 @@ function generateTemplate(){
   drawFold(frontX,wallY,frontX,wallY+H);
   drawFold(rightX,wallY,rightX,wallY+H);
   drawFold(backX,wallY,backX,wallY+H);
+}
+
+function getProjectData(){
+  return {
+    app:"APOC Flatpack Building Generator",
+    version:2,
+    savedAt:new Date().toISOString(),
+    settings:{
+      title:document.getElementById("templateTitle").value,
+      boxW:document.getElementById("boxW").value,
+      boxD:document.getElementById("boxD").value,
+      boxH:document.getElementById("boxH").value,
+      tabSize:document.getElementById("tabSize").value,
+      paperSize:document.getElementById("paperSize").value,
+      fitMode:document.getElementById("fitMode").value,
+      rotations:{
+        front:document.getElementById("frontRot").value,
+        back:document.getElementById("backRot").value,
+        left:document.getElementById("leftRot").value,
+        right:document.getElementById("rightRot").value,
+        top:document.getElementById("topRot").value
+      }
+    },
+    images:imageData
+  };
+}
+
+function saveProject(){
+  const project=getProjectData();
+  const blob=new Blob([JSON.stringify(project,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=safeFileName(project.settings.title || "apoc-building")+".json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+async function loadProject(e){
+  const file=e.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async ev=>{
+    try{
+      const project=JSON.parse(ev.target.result);
+      const s=project.settings || {};
+      document.getElementById("templateTitle").value=s.title || "APOC Building Template";
+      document.getElementById("boxW").value=s.boxW || 100;
+      document.getElementById("boxD").value=s.boxD || 100;
+      document.getElementById("boxH").value=s.boxH || 80;
+      document.getElementById("tabSize").value=s.tabSize || 8;
+      document.getElementById("paperSize").value=s.paperSize || "a4";
+      document.getElementById("fitMode").value=s.fitMode || "fill";
+      const r=s.rotations || {};
+      document.getElementById("frontRot").value=r.front || 0;
+      document.getElementById("backRot").value=r.back || 0;
+      document.getElementById("leftRot").value=r.left || 0;
+      document.getElementById("rightRot").value=r.right || 0;
+      document.getElementById("topRot").value=r.top || 0;
+
+      const imgs=project.images || {};
+      await Promise.all(imageKeys.map(key=>loadImageFromData(key,imgs[key] || null)));
+      generateTemplate();
+      alert("Building project loaded.");
+    }catch(err){
+      alert("Sorry, this project file could not be loaded.");
+      console.error(err);
+    }
+  };
+  reader.readAsText(file);
+  e.target.value="";
 }
 
 function safeFileName(name){
