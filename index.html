@@ -107,7 +107,7 @@ hr{ border:0; border-top:1px solid #444; margin:20px 0; }
 </div>
 
 <label>Paper Size</label>
-<select id="paperSize"><option value="a4">A4 Landscape</option><option value="a3">A3 Landscape</option></select>
+<input type="text" value="A4 Landscape - auto fit to page" disabled>
 
 <label>Image Fit</label>
 <select id="fitMode"><option value="fill">Fill Panel</option><option value="fit">Fit Whole Image</option><option value="stretch">Stretch To Panel</option></select>
@@ -177,7 +177,7 @@ function loadImageFromData(key,dataUrl){
 }
 
 [
-"templateTitle","boxW","boxD","boxH","tabSize","paperSize","fitMode",
+"templateTitle","boxW","boxD","boxH","tabSize","fitMode",
 "frontRot","backRot","leftRot","rightRot","topRot"
 ].forEach(id=>{
   const el=document.getElementById(id);
@@ -188,10 +188,8 @@ function loadImageFromData(key,dataUrl){
 document.getElementById("projectLoader").addEventListener("change",loadProject);
 
 function getPaper(){
-  // 300 DPI print canvases. These match real A4/A3 landscape paper sizes.
-  if(document.getElementById("paperSize").value==="a3"){
-    return {width:4961,height:3508,pdf:"a3",mmW:420,mmH:297};
-  }
+  // A4 landscape only, designed for normal home printers.
+  // 300 DPI canvas = 297mm x 210mm.
   return {width:3508,height:2480,pdf:"a4",mmW:297,mmH:210};
 }
 
@@ -313,7 +311,9 @@ function generateTemplate(){
   const bottomMargin=5*MM_TO_PX;
   const availableW=canvas.width-(sideMargin*2);
   const availableH=canvas.height-topSafe-bottomMargin;
-  const scale=Math.min(1,availableW/totalW,availableH/totalH);
+  // Always fit the whole template to A4. This keeps home printing easy.
+  // The proportions remain correct, but the final printed size may be smaller than the entered size.
+  const scale=Math.min(availableW/totalW,availableH/totalH);
 
   W*=scale;
   D*=scale;
@@ -356,22 +356,16 @@ function generateTemplate(){
   ctx.textAlign="center";
   ctx.textBaseline="middle";
 
-  if(scale<0.999){
-    const printedW=(Wmm*scale).toFixed(1);
-    const printedD=(Dmm*scale).toFixed(1);
-    const printedH=(Hmm*scale).toFixed(1);
-    ctx.fillText(
-      `WARNING: Net is too large for ${paper.pdf.toUpperCase()} and has been scaled to ${(scale*100).toFixed(1)}%. Printed building approx ${printedW}mm W x ${printedD}mm D x ${printedH}mm H. Use A3 or smaller dimensions for true size.`,
-      canvas.width/2,
-      canvas.height-45
-    );
-  }else{
-    ctx.fillText(
-      `Print size: ${Wmm}mm W x ${Dmm}mm D x ${Hmm}mm H. Net size: ${totalWmm}mm x ${totalHmm}mm. Print at 100% / Actual Size.`,
-      canvas.width/2,
-      canvas.height-45
-    );
-  }
+  const printedW=(Wmm*scale).toFixed(1);
+  const printedD=(Dmm*scale).toFixed(1);
+  const printedH=(Hmm*scale).toFixed(1);
+  const scalePercent=(scale*100).toFixed(1);
+
+  ctx.fillText(
+    `A4 auto-fit: ${scalePercent}% scale. Final model approx ${printedW}mm W x ${printedD}mm D x ${printedH}mm H. Print at 100% / Actual Size.`,
+    canvas.width/2,
+    canvas.height-45
+  );
 }
 
 function getProjectData(){
@@ -385,7 +379,7 @@ function getProjectData(){
       boxD:document.getElementById("boxD").value,
       boxH:document.getElementById("boxH").value,
       tabSize:document.getElementById("tabSize").value,
-      paperSize:document.getElementById("paperSize").value,
+      paperSize:"a4",
       fitMode:document.getElementById("fitMode").value,
       rotations:{
         front:document.getElementById("frontRot").value,
@@ -422,7 +416,6 @@ async function loadProject(e){
       document.getElementById("boxD").value=s.boxD || 100;
       document.getElementById("boxH").value=s.boxH || 80;
       document.getElementById("tabSize").value=s.tabSize || 8;
-      document.getElementById("paperSize").value=s.paperSize || "a4";
       document.getElementById("fitMode").value=s.fitMode || "fill";
       const r=s.rotations || {};
       document.getElementById("frontRot").value=r.front || 0;
