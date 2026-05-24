@@ -188,8 +188,11 @@ function loadImageFromData(key,dataUrl){
 document.getElementById("projectLoader").addEventListener("change",loadProject);
 
 function getPaper(){
-  if(document.getElementById("paperSize").value==="a3") return {width:2480,height:1754,pdf:"a3"};
-  return {width:1754,height:1240,pdf:"a4"};
+  // 300 DPI print canvases. These match real A4/A3 landscape paper sizes.
+  if(document.getElementById("paperSize").value==="a3"){
+    return {width:4961,height:3508,pdf:"a3",mmW:420,mmH:297};
+  }
+  return {width:3508,height:2480,pdf:"a4",mmW:297,mmH:210};
 }
 
 function getRotation(key){ return Number(document.getElementById(key+"Rot").value || 0); }
@@ -269,28 +272,58 @@ function generateTemplate(){
   const paper=getPaper();
   canvas.width=paper.width;
   canvas.height=paper.height;
+
   ctx.fillStyle="#fff";
   ctx.fillRect(0,0,canvas.width,canvas.height);
 
+  const MM_TO_PX = 300 / 25.4; // accurate 300 DPI print scale
+
   const title=document.getElementById("templateTitle").value || "APOC Building Template";
+
+  // Title moved down and made larger so it does not get clipped
   ctx.fillStyle="#111";
-  ctx.font="bold 30px Arial";
+  ctx.font="bold 54px Arial";
   ctx.textAlign="center";
-  ctx.fillText(title,canvas.width/2,48);
-  ctx.font="16px Arial";
-  ctx.fillText("Cut solid lines. Fold dotted lines. Glue the pale yellow tabs.",canvas.width/2,76);
+  ctx.textBaseline="middle";
+  ctx.fillText(title,canvas.width/2,105);
 
-  // Accurate print scaling at 300 DPI
-  const MM_TO_PX = 11.811;
+  ctx.font="26px Arial";
+  ctx.fillText("Cut solid lines. Fold dotted lines. Glue the pale yellow tabs.",canvas.width/2,155);
 
-  const W=Number(document.getElementById("boxW").value)*MM_TO_PX;
-  const D=Number(document.getElementById("boxD").value)*MM_TO_PX;
-  const H=Number(document.getElementById("boxH").value)*MM_TO_PX;
-  const T=Number(document.getElementById("tabSize").value)*MM_TO_PX;
-  const totalW=D+W+D+W+T;
-  const totalH=D+H+T;
+  const Wmm=Number(document.getElementById("boxW").value);
+  const Dmm=Number(document.getElementById("boxD").value);
+  const Hmm=Number(document.getElementById("boxH").value);
+  const Tmm=Number(document.getElementById("tabSize").value);
+
+  let W=Wmm*MM_TO_PX;
+  let D=Dmm*MM_TO_PX;
+  let H=Hmm*MM_TO_PX;
+  let T=Tmm*MM_TO_PX;
+
+  const totalWmm=Dmm+Wmm+Dmm+Wmm+Tmm;
+  const totalHmm=Tmm+Dmm+Hmm;
+
+  let totalW=D+W+D+W+T;
+  let totalH=T+D+H;
+
+  // Keep the real-world size if it fits. If the whole net is too large for the chosen paper,
+  // scale it down so it remains visible instead of disappearing off the page.
+  const sideMargin=5*MM_TO_PX;
+  const topSafe=190;
+  const bottomMargin=5*MM_TO_PX;
+  const availableW=canvas.width-(sideMargin*2);
+  const availableH=canvas.height-topSafe-bottomMargin;
+  const scale=Math.min(1,availableW/totalW,availableH/totalH);
+
+  W*=scale;
+  D*=scale;
+  H*=scale;
+  T*=scale;
+  totalW*=scale;
+  totalH*=scale;
+
   const startX=(canvas.width-totalW)/2;
-  const startY=((canvas.height-totalH)/2)+30;
+  const startY=topSafe+((availableH-totalH)/2);
 
   const leftX=startX;
   const frontX=leftX+D;
@@ -316,6 +349,29 @@ function generateTemplate(){
   drawFold(frontX,wallY,frontX,wallY+H);
   drawFold(rightX,wallY,rightX,wallY+H);
   drawFold(backX,wallY,backX,wallY+H);
+
+  // Small print-size note at the bottom
+  ctx.fillStyle="#111";
+  ctx.font="22px Arial";
+  ctx.textAlign="center";
+  ctx.textBaseline="middle";
+
+  if(scale<0.999){
+    const printedW=(Wmm*scale).toFixed(1);
+    const printedD=(Dmm*scale).toFixed(1);
+    const printedH=(Hmm*scale).toFixed(1);
+    ctx.fillText(
+      `WARNING: Net is too large for ${paper.pdf.toUpperCase()} and has been scaled to ${(scale*100).toFixed(1)}%. Printed building approx ${printedW}mm W x ${printedD}mm D x ${printedH}mm H. Use A3 or smaller dimensions for true size.`,
+      canvas.width/2,
+      canvas.height-45
+    );
+  }else{
+    ctx.fillText(
+      `Print size: ${Wmm}mm W x ${Dmm}mm D x ${Hmm}mm H. Net size: ${totalWmm}mm x ${totalHmm}mm. Print at 100% / Actual Size.`,
+      canvas.width/2,
+      canvas.height-45
+    );
+  }
 }
 
 function getProjectData(){
