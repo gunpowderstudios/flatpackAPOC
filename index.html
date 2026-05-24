@@ -33,8 +33,8 @@ canvas{background:#fff;max-width:100%;height:auto;box-shadow:0 6px 20px rgba(0,0
 </header>
 <div class="wrap">
 <div class="panel">
-<label>Template Title</label>
-<input type="text" id="templateTitle" value="Enter Building Name">
+<label>Building Name</label>
+<input type="text" id="templateTitle" placeholder="Enter Building Name">
 <button onclick="saveProject()">Save Building Project JSON</button>
 <button class="secondary" onclick="document.getElementById('projectLoader').click()">Load Building Project JSON</button>
 <input type="file" id="projectLoader" accept=".json" style="display:none">
@@ -51,16 +51,13 @@ canvas{background:#fff;max-width:100%;height:auto;box-shadow:0 6px 20px rgba(0,0
 </div>
 <label>Paper</label>
 <select id="paperLayout"><option value="portrait" selected>A4 Portrait</option><option value="landscape">A4 Landscape</option></select>
-<label>Layout</label>
-<select id="netLayout"><option value="cross" selected>Compact Cross Layout</option><option value="strip">Old Strip Layout</option></select>
 <label>Print Scale</label>
 <select id="scaleMode"><option value="fit">Auto Fit To Page</option><option value="actual" selected>Actual Size / 100%</option></select>
 <label>Image Fit</label>
 <select id="fitMode"><option value="fill">Fill Panel</option><option value="fit">Fit Whole Image</option><option value="stretch">Stretch To Panel</option></select>
-<button onclick="generateTemplate()">Generate Template</button>
 <button onclick="downloadPNG()">Download PNG</button>
 <button onclick="downloadPDF()">Download PDF</button>
-<div class="note">Compact Cross Layout uses the roof in the centre with walls folding around it.</div>
+<div class="note">The roof sits in the centre with the walls folding around it.</div>
 </div>
 <div class="panel"><div class="canvasBox"><canvas id="templateCanvas"></canvas></div></div>
 </div>
@@ -83,7 +80,7 @@ const keys=['front','back','left','right','top'];
  reader.readAsDataURL(file);
  });
 });
-['templateTitle','boxW','boxD','boxH','tabSize','paperLayout','netLayout','scaleMode','fitMode','frontRot','backRot','leftRot','rightRot','topRot'].forEach(id=>{
+['templateTitle','boxW','boxD','boxH','tabSize','paperLayout','scaleMode','fitMode','frontRot','backRot','leftRot','rightRot','topRot'].forEach(id=>{
  const el=document.getElementById(id);
  el.addEventListener('input',generateTemplate);
  el.addEventListener('change',generateTemplate);
@@ -185,7 +182,6 @@ function saveProject(){
    height:document.getElementById('boxH').value,
    tab:document.getElementById('tabSize').value,
    paperLayout:document.getElementById('paperLayout').value,
-   netLayout:document.getElementById('netLayout').value,
    scaleMode:document.getElementById('scaleMode').value,
    fitMode:document.getElementById('fitMode').value
   },
@@ -225,7 +221,6 @@ document.getElementById('projectLoader').addEventListener('change',e=>{
    setValueIfExists('boxH',s.height);
    setValueIfExists('tabSize',s.tab);
    setValueIfExists('paperLayout',s.paperLayout||'portrait');
-   setValueIfExists('netLayout',s.netLayout||'cross');
    setValueIfExists('scaleMode',s.scaleMode||'actual');
    setValueIfExists('fitMode',s.fitMode||'fill');
 
