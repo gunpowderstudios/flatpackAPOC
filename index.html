@@ -13,91 +13,22 @@ Replace your existing `index.html` with the code below.
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-
-*{
-  box-sizing:border-box;
-}
-
-body{
-  margin:0;
-  font-family:Arial,Helvetica,sans-serif;
-  background:#202020;
-  color:#f5f5f5;
-}
-
-header{
-  padding:20px;
-  background:#111;
-  border-bottom:3px solid #d0a53b;
-}
-
-.wrap{
-  display:grid;
-  grid-template-columns:360px 1fr;
-  gap:20px;
-  padding:20px;
-}
-
-.panel{
-  background:#2d2d2d;
-  border-radius:12px;
-  padding:18px;
-}
-
-label{
-  display:block;
-  margin:12px 0 6px;
-  font-weight:bold;
-}
-
-input,
-select,
-button{
-  width:100%;
-  padding:10px;
-  border-radius:8px;
-  border:none;
-  font-size:15px;
-}
-
-button{
-  margin-top:12px;
-  background:#d0a53b;
-  font-weight:bold;
-  cursor:pointer;
-}
-
-button:hover{
-  background:#f0c95a;
-}
-
-.smallGrid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-}
-
-.canvasBox{
-  overflow:auto;
-  background:#666;
-  border-radius:12px;
-  padding:20px;
-  text-align:center;
-}
-
-canvas{
-  background:#fff;
-  max-width:100%;
-  height:auto;
-  box-shadow:0 6px 20px rgba(0,0,0,.5);
-}
-
-@media(max-width:900px){
-.wrap{
-  grid-template-columns:1fr;
-}
-}
-
+*{ box-sizing:border-box; }
+body{ margin:0; font-family:Arial,Helvetica,sans-serif; background:#202020; color:#f5f5f5; }
+header{ padding:20px; background:#111; border-bottom:3px solid #d0a53b; }
+.wrap{ display:grid; grid-template-columns:380px 1fr; gap:20px; padding:20px; }
+.panel{ background:#2d2d2d; border-radius:12px; padding:18px; }
+label{ display:block; margin:12px 0 6px; font-weight:bold; }
+input,select,button{ width:100%; padding:10px; border-radius:8px; border:none; font-size:15px; }
+button{ margin-top:12px; background:#d0a53b; font-weight:bold; cursor:pointer; }
+button:hover{ background:#f0c95a; }
+.smallGrid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.uploadBlock{ border:1px solid #444; border-radius:10px; padding:10px; margin-bottom:10px; background:#242424; }
+.uploadBlock label{ margin-top:0; }
+.canvasBox{ overflow:auto; background:#666; border-radius:12px; padding:20px; text-align:center; }
+canvas{ background:#fff; max-width:100%; height:auto; box-shadow:0 6px 20px rgba(0,0,0,.5); }
+.note{ font-size:13px; color:#ccc; line-height:1.4; margin-top:14px; }
+@media(max-width:900px){ .wrap{ grid-template-columns:1fr; } }
 </style>
 </head>
 
@@ -112,47 +43,64 @@ canvas{
 
 <div class="panel">
 
-<h2>Upload Building Images</h2>
+<h2>Template Details</h2>
+<label>Template Title</label>
+<input type="text" id="templateTitle" value="APOC Hospital Building">
 
+<h2 style="margin-top:24px;">Upload Building Images</h2>
+
+<div class="uploadBlock">
 <label>Front</label>
 <input type="file" id="frontImg" accept="image/*">
+<label>Rotate Front</label>
+<select id="frontRot">
+<option value="0">0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option>
+</select>
+</div>
 
+<div class="uploadBlock">
 <label>Back</label>
 <input type="file" id="backImg" accept="image/*">
+<label>Rotate Back</label>
+<select id="backRot">
+<option value="0">0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option>
+</select>
+</div>
 
+<div class="uploadBlock">
 <label>Left</label>
 <input type="file" id="leftImg" accept="image/*">
+<label>Rotate Left</label>
+<select id="leftRot">
+<option value="0">0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option>
+</select>
+</div>
 
+<div class="uploadBlock">
 <label>Right</label>
 <input type="file" id="rightImg" accept="image/*">
+<label>Rotate Right</label>
+<select id="rightRot">
+<option value="0">0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option>
+</select>
+</div>
 
+<div class="uploadBlock">
 <label>Top / Roof</label>
 <input type="file" id="topImg" accept="image/*">
+<label>Rotate Top / Roof</label>
+<select id="topRot">
+<option value="0">0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option>
+</select>
+</div>
 
 <h2 style="margin-top:24px;">Building Size</h2>
 
 <div class="smallGrid">
-
-<div>
-<label>Width mm</label>
-<input type="number" id="boxW" value="100">
-</div>
-
-<div>
-<label>Depth mm</label>
-<input type="number" id="boxD" value="100">
-</div>
-
-<div>
-<label>Height mm</label>
-<input type="number" id="boxH" value="80">
-</div>
-
-<div>
-<label>Glue Tab mm</label>
-<input type="number" id="tabSize" value="8">
-</div>
-
+<div><label>Width mm</label><input type="number" id="boxW" value="100"></div>
+<div><label>Depth mm</label><input type="number" id="boxD" value="100"></div>
+<div><label>Height mm</label><input type="number" id="boxH" value="80"></div>
+<div><label>Glue Tab mm</label><input type="number" id="tabSize" value="8"></div>
 </div>
 
 <label>Paper Size</label>
@@ -171,363 +119,212 @@ canvas{
 <button onclick="downloadPNG()">Download PNG</button>
 <button onclick="downloadPDF()">Download PDF</button>
 
+<div class="note">Tip: if your roof is sideways, change only the Top / Roof rotation to 90° or 270°.</div>
+
 </div>
 
 <div class="panel">
-
 <h2>Preview</h2>
-
-<div class="canvasBox">
-<canvas id="templateCanvas"></canvas>
-</div>
-
+<div class="canvasBox"><canvas id="templateCanvas"></canvas></div>
 </div>
 
 </div>
 
 <script>
-
 const canvas=document.getElementById("templateCanvas");
 const ctx=canvas.getContext("2d");
 
-const loaded={
-front:null,
-back:null,
-left:null,
-right:null,
-top:null
-};
+const loaded={ front:null, back:null, left:null, right:null, top:null };
 
-[
+const uploads=[
 ["frontImg","front"],
 ["backImg","back"],
 ["leftImg","left"],
 ["rightImg","right"],
 ["topImg","top"]
-].forEach(([id,key])=>{
+];
 
-const input=document.getElementById(id);
-
-input.addEventListener("change",e=>{
-
-const file=e.target.files[0];
-if(!file)return;
-
-const reader=new FileReader();
-
-reader.onload=ev=>{
-
-const img=new Image();
-
-img.onload=()=>{
-loaded[key]=img;
-generateTemplate();
-};
-
-img.src=ev.target.result;
-
-};
-
-reader.readAsDataURL(file);
-
+uploads.forEach(([id,key])=>{
+  document.getElementById(id).addEventListener("change",e=>{
+    const file=e.target.files[0];
+    if(!file)return;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      const img=new Image();
+      img.onload=()=>{ loaded[key]=img; generateTemplate(); };
+      img.src=ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
 });
 
-});
-
-// Rebuild the template automatically whenever sizes/settings change
 [
-"boxW",
-"boxD",
-"boxH",
-"tabSize",
-"paperSize",
-"fitMode"
+"templateTitle","boxW","boxD","boxH","tabSize","paperSize","fitMode",
+"frontRot","backRot","leftRot","rightRot","topRot"
 ].forEach(id=>{
-
-const el=document.getElementById(id);
-
-el.addEventListener("input",generateTemplate);
-el.addEventListener("change",generateTemplate);
-
+  const el=document.getElementById(id);
+  el.addEventListener("input",generateTemplate);
+  el.addEventListener("change",generateTemplate);
 });
 
 function getPaper(){
-
-const p=document.getElementById("paperSize").value;
-
-if(p==="a3"){
-return {
-width:2480,
-height:1754,
-pdf:"a3"
-};
+  if(document.getElementById("paperSize").value==="a3") return {width:2480,height:1754,pdf:"a3"};
+  return {width:1754,height:1240,pdf:"a4"};
 }
 
-return {
-width:1754,
-height:1240,
-pdf:"a4"
-};
-
+function getRotation(key){
+  return Number(document.getElementById(key+"Rot").value || 0);
 }
 
-function drawImagePanel(img,x,y,w,h){
+function drawRotatedImage(img,x,y,w,h,rotation){
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(x,y,w,h);
+  ctx.clip();
 
-ctx.fillStyle="#f2f2f2";
-ctx.fillRect(x,y,w,h);
+  ctx.translate(x+w/2,y+h/2);
+  ctx.rotate(rotation*Math.PI/180);
 
-if(img){
+  const rotated = rotation===90 || rotation===270;
+  const imgW = rotated ? img.height : img.width;
+  const imgH = rotated ? img.width : img.height;
+  const ratio = imgW/imgH;
+  const boxRatio = w/h;
 
-ctx.save();
-ctx.beginPath();
-ctx.rect(x,y,w,h);
-ctx.clip();
+  let drawW, drawH;
 
-if(fitMode.value==="fill"){
+  if(document.getElementById("fitMode").value==="fill"){
+    if(ratio>boxRatio){ drawH=h; drawW=h*ratio; }
+    else{ drawW=w; drawH=w/ratio; }
+  }else{
+    if(ratio>boxRatio){ drawW=w; drawH=w/ratio; }
+    else{ drawH=h; drawW=h*ratio; }
+  }
 
-ctx.drawImage(img,x,y,w,h);
+  if(rotated){
+    ctx.drawImage(img,-drawH/2,-drawW/2,drawH,drawW);
+  }else{
+    ctx.drawImage(img,-drawW/2,-drawH/2,drawW,drawH);
+  }
 
-}else{
-
-const ratio=img.width/img.height;
-const boxRatio=w/h;
-
-let drawW=w;
-let drawH=h;
-
-if(ratio>boxRatio){
-drawH=w/ratio;
-}else{
-drawW=h*ratio;
+  ctx.restore();
 }
 
-ctx.drawImage(
-img,
-x+(w-drawW)/2,
-y+(h-drawH)/2,
-drawW,
-drawH
-);
-
-}
-
-ctx.restore();
-
-}
-
-ctx.strokeStyle="#000";
-ctx.lineWidth=2;
-ctx.strokeRect(x,y,w,h);
-
+function drawImagePanel(img,x,y,w,h,key){
+  ctx.fillStyle="#f2f2f2";
+  ctx.fillRect(x,y,w,h);
+  if(img) drawRotatedImage(img,x,y,w,h,getRotation(key));
+  ctx.strokeStyle="#000";
+  ctx.lineWidth=2;
+  ctx.strokeRect(x,y,w,h);
 }
 
 function drawTab(points){
-
-ctx.beginPath();
-ctx.moveTo(points[0][0],points[0][1]);
-
-for(let i=1;i<points.length;i++){
-ctx.lineTo(points[i][0],points[i][1]);
-}
-
-ctx.closePath();
-
-ctx.fillStyle="#fff6cc";
-ctx.fill();
-
-ctx.strokeStyle="#000";
-ctx.lineWidth=2;
-ctx.stroke();
-
+  ctx.beginPath();
+  ctx.moveTo(points[0][0],points[0][1]);
+  for(let i=1;i<points.length;i++) ctx.lineTo(points[i][0],points[i][1]);
+  ctx.closePath();
+  ctx.fillStyle="#fff6cc";
+  ctx.fill();
+  ctx.strokeStyle="#000";
+  ctx.lineWidth=2;
+  ctx.stroke();
 }
 
 function drawFold(x1,y1,x2,y2){
-
-ctx.save();
-ctx.setLineDash([4,4]);
-ctx.strokeStyle="#999";
-ctx.lineWidth=1;
-
-ctx.beginPath();
-ctx.moveTo(x1,y1);
-ctx.lineTo(x2,y2);
-ctx.stroke();
-
-ctx.restore();
-
+  ctx.save();
+  ctx.setLineDash([4,4]);
+  ctx.strokeStyle="#999";
+  ctx.lineWidth=1;
+  ctx.beginPath();
+  ctx.moveTo(x1,y1);
+  ctx.lineTo(x2,y2);
+  ctx.stroke();
+  ctx.restore();
 }
 
 function generateTemplate(){
+  const paper=getPaper();
+  canvas.width=paper.width;
+  canvas.height=paper.height;
 
-const paper=getPaper();
+  ctx.fillStyle="#fff";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
 
-canvas.width=paper.width;
-canvas.height=paper.height;
+  const title=document.getElementById("templateTitle").value || "APOC Building Template";
 
-ctx.fillStyle="#fff";
-ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle="#111";
+  ctx.font="bold 30px Arial";
+  ctx.textAlign="center";
+  ctx.fillText(title,canvas.width/2,48);
 
-const W=Number(boxW.value)*4;
-const D=Number(boxD.value)*4;
-const H=Number(boxH.value)*4;
-const T=Number(tabSize.value)*4;
+  ctx.font="16px Arial";
+  ctx.fillText("Cut solid lines. Fold dotted lines. Glue the pale yellow tabs.",canvas.width/2,76);
 
-const totalW=D+W+D+W+T;
-const totalH=D+H+T;
+  const W=Number(document.getElementById("boxW").value)*4;
+  const D=Number(document.getElementById("boxD").value)*4;
+  const H=Number(document.getElementById("boxH").value)*4;
+  const T=Number(document.getElementById("tabSize").value)*4;
 
-const startX=(canvas.width-totalW)/2;
-const startY=(canvas.height-totalH)/2;
+  const totalW=D+W+D+W+T;
+  const totalH=D+H+T;
 
-const leftX=startX;
-const frontX=leftX+D;
-const rightX=frontX+W;
-const backX=rightX+D;
-const tabX=backX+W;
+  const startX=(canvas.width-totalW)/2;
+  const startY=((canvas.height-totalH)/2)+30;
 
-const roofY=startY+T;
-const wallY=roofY+D;
+  const leftX=startX;
+  const frontX=leftX+D;
+  const rightX=frontX+W;
+  const backX=rightX+D;
+  const tabX=backX+W;
 
-// Roof
+  const roofY=startY+T;
+  const wallY=roofY+D;
 
-drawImagePanel(
-loaded.top,
-frontX,
-roofY,
-W,
-D
-);
+  drawImagePanel(loaded.top,frontX,roofY,W,D,"top");
+  drawImagePanel(loaded.left,leftX,wallY,D,H,"left");
+  drawImagePanel(loaded.front,frontX,wallY,W,H,"front");
+  drawImagePanel(loaded.right,rightX,wallY,D,H,"right");
+  drawImagePanel(loaded.back,backX,wallY,W,H,"back");
 
-// Walls
+  drawTab([[frontX+T,roofY-T],[frontX+W-T,roofY-T],[frontX+W,roofY],[frontX,roofY]]);
+  drawTab([[tabX,wallY],[tabX+T,wallY+T],[tabX+T,wallY+H-T],[tabX,wallY+H]]);
+  drawTab([[frontX,roofY],[frontX-T,roofY+T],[frontX-T,roofY+D-T],[frontX,roofY+D]]);
+  drawTab([[frontX+W,roofY],[frontX+W+T,roofY+T],[frontX+W+T,roofY+D-T],[frontX+W,roofY+D]]);
 
-drawImagePanel(
-loaded.left,
-leftX,
-wallY,
-D,
-H
-);
-
-drawImagePanel(
-loaded.front,
-frontX,
-wallY,
-W,
-H
-);
-
-drawImagePanel(
-loaded.right,
-rightX,
-wallY,
-D,
-H
-);
-
-drawImagePanel(
-loaded.back,
-backX,
-wallY,
-W,
-H
-);
-
-// Top tab
-
-drawTab([
-[frontX+T,roofY-T],
-[frontX+W-T,roofY-T],
-[frontX+W,roofY],
-[frontX,roofY]
-]);
-
-// Side glue tab
-
-drawTab([
-[tabX,wallY],
-[tabX+T,wallY+T],
-[tabX+T,wallY+H-T],
-[tabX,wallY+H]
-]);
-
-// Roof side tabs
-
-drawTab([
-[frontX,roofY],
-[frontX-T,roofY+T],
-[frontX-T,roofY+D-T],
-[frontX,roofY+D]
-]);
-
-drawTab([
-[frontX+W,roofY],
-[frontX+W+T,roofY+T],
-[frontX+W+T,roofY+D-T],
-[frontX+W,roofY+D]
-]);
-
-// Fold lines
-
-drawFold(frontX,roofY,frontX+W,roofY);
-drawFold(frontX,roofY+D,frontX+W,roofY+D);
-
-drawFold(frontX,wallY,frontX,wallY+H);
-drawFold(rightX,wallY,rightX,wallY+H);
-drawFold(backX,wallY,backX,wallY+H);
-
-generateShadow();
-
+  drawFold(frontX,roofY,frontX+W,roofY);
+  drawFold(frontX,roofY+D,frontX+W,roofY+D);
+  drawFold(frontX,wallY,frontX,wallY+H);
+  drawFold(rightX,wallY,rightX,wallY+H);
+  drawFold(backX,wallY,backX,wallY+H);
 }
 
-function generateShadow(){
-ctx.save();
-ctx.shadowColor="rgba(0,0,0,.15)";
-ctx.shadowBlur=20;
-ctx.restore();
+function safeFileName(name){
+  return (name || "apoc-building-template").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
 }
 
 function downloadPNG(){
-
-generateTemplate();
-
-const a=document.createElement("a");
-a.download="apoc-building-template.png";
-a.href=canvas.toDataURL("image/png");
-a.click();
-
+  generateTemplate();
+  const title=document.getElementById("templateTitle").value;
+  const a=document.createElement("a");
+  a.download=safeFileName(title)+".png";
+  a.href=canvas.toDataURL("image/png");
+  a.click();
 }
 
 function downloadPDF(){
-
-generateTemplate();
-
-const paper=getPaper();
-
-const {jsPDF}=window.jspdf;
-
-const pdf=new jsPDF({
-orientation:"landscape",
-unit:"mm",
-format:paper.pdf
-});
-
-const pageW=pdf.internal.pageSize.getWidth();
-const pageH=pdf.internal.pageSize.getHeight();
-
-pdf.addImage(
-canvas.toDataURL("image/png",1),
-"PNG",
-0,
-0,
-pageW,
-pageH
-);
-
-pdf.save("apoc-building-template.pdf");
-
+  generateTemplate();
+  const paper=getPaper();
+  const {jsPDF}=window.jspdf;
+  const pdf=new jsPDF({orientation:"landscape",unit:"mm",format:paper.pdf});
+  const pageW=pdf.internal.pageSize.getWidth();
+  const pageH=pdf.internal.pageSize.getHeight();
+  pdf.addImage(canvas.toDataURL("image/png",1),"PNG",0,0,pageW,pageH);
+  const title=document.getElementById("templateTitle").value;
+  pdf.save(safeFileName(title)+".pdf");
 }
 
 generateTemplate();
-
 </script>
 
 </body>
