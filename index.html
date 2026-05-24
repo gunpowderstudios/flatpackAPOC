@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -12,6 +11,8 @@
 *{box-sizing:border-box;}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#202020;color:#f5f5f5;}
 header{padding:20px;background:#111;border-bottom:3px solid #d0a53b;}
+header h1{margin:0 0 6px;font-size:30px;color:#ffd66b;}
+header p{margin:0;color:#ddd;}
 .wrap{display:grid;grid-template-columns:380px 1fr;gap:20px;padding:20px;}
 .panel{background:#2d2d2d;border-radius:12px;padding:18px;}
 label{display:block;margin:12px 0 6px;font-weight:bold;}
@@ -28,7 +29,6 @@ canvas{background:#fff;max-width:100%;height:auto;box-shadow:0 6px 20px rgba(0,0
 hr{border:0;border-top:1px solid #444;margin:20px 0;}
 @media(max-width:900px){.wrap{grid-template-columns:1fr;}}
 </style>
-
 </head>
 
 <body>
@@ -49,7 +49,7 @@ hr{border:0;border-top:1px solid #444;margin:20px 0;}
 <button onclick="saveProject()">Save Building Project JSON</button>
 <button class="secondary" onclick="document.getElementById('projectLoader').click()">Load Building Project JSON</button>
 <input type="file" id="projectLoader" accept=".json" style="display:none;">
-<div class="note">Each building can be saved as a reusable project including all images and settings.</div>
+<div class="note">Each building can be saved as a reusable project including all images, rotations and settings.</div>
 
 <hr>
 <h2>Upload Building Images</h2>
@@ -68,22 +68,18 @@ hr{border:0;border-top:1px solid #444;margin:20px 0;}
 <div><label>Glue Tab mm</label><input type="number" id="tabSize" value="8"></div>
 </div>
 
-<label>Paper / Layout</label> <select id="paperLayout">
-
-<option value="portrait" selected>A4 Portrait - tall template</option>
-<option value="landscape">A4 Landscape - wide template</option>
-</select>
-
-<label>Image Fit</label> <select id="fitMode">
-
+<label>Image Fit</label>
+<select id="fitMode">
 <option value="fill">Fill Panel</option>
 <option value="fit">Fit Whole Image</option>
 <option value="stretch">Stretch To Panel</option>
 </select>
 
-<button onclick="generateTemplate()">Generate Template</button> <button onclick="downloadPNG()">Download PNG</button> <button onclick="downloadPDF()">Download PDF</button>
+<button onclick="generateTemplate()">Generate Template</button>
+<button onclick="downloadPNG()">Download PNG</button>
+<button onclick="downloadPDF()">Download PDF</button>
 
-<div class="note">Portrait mode rotates the whole net so the building template is tall instead of wide. It still auto-fits onto A4.</div>
+<div class="note">A4 landscape only. The whole template auto-fits to the page and shows the final printed size at the bottom.</div>
 
 </div>
 
@@ -118,19 +114,14 @@ uploads.forEach(([id,key])=>{
   });
 });
 
-[
-"templateTitle","boxW","boxD","boxH","tabSize","fitMode","paperLayout",
-"frontRot","backRot","leftRot","rightRot","topRot"
-].forEach(id=>{
+["templateTitle","boxW","boxD","boxH","tabSize","fitMode","frontRot","backRot","leftRot","rightRot","topRot"].forEach(id=>{
   const el=document.getElementById(id);
   el.addEventListener("input",generateTemplate);
   el.addEventListener("change",generateTemplate);
 });
 
 function getPaper(){
-  const layout=document.getElementById("paperLayout").value;
-  if(layout==="landscape") return {width:3508,height:2480,pdf:"a4",orientation:"landscape"};
-  return {width:2480,height:3508,pdf:"a4",orientation:"portrait"};
+  return {width:3508,height:2480,pdf:"a4",orientation:"landscape"};
 }
 
 function getRotation(key){return Number(document.getElementById(key+"Rot").value || 0);}
@@ -185,13 +176,49 @@ function drawFold(x1,y1,x2,y2){
   ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.restore();
 }
 
-function drawHorizontalNet(offsetX,offsetY,W,D,H,T){
-  const leftX=offsetX;
+function generateTemplate(){
+  const paper=getPaper();
+  canvas.width=paper.width;canvas.height=paper.height;
+  ctx.fillStyle="#fff";ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  const MM_TO_PX=300/25.4;
+  const title=document.getElementById("templateTitle").value || "APOC Building";
+
+  ctx.fillStyle="#111";
+  ctx.textAlign="center";
+  ctx.textBaseline="middle";
+  ctx.font="bold 78px Arial";
+  ctx.fillText(title,canvas.width/2,115);
+  ctx.font="32px Arial";
+  ctx.fillText("Cut solid lines. Fold dotted lines. Glue the pale yellow tabs.",canvas.width/2,180);
+
+  const Wmm=Number(document.getElementById("boxW").value);
+  const Dmm=Number(document.getElementById("boxD").value);
+  const Hmm=Number(document.getElementById("boxH").value);
+  const Tmm=Number(document.getElementById("tabSize").value);
+
+  let W=Wmm*MM_TO_PX, D=Dmm*MM_TO_PX, H=Hmm*MM_TO_PX, T=Tmm*MM_TO_PX;
+  let netW=D+W+D+W+T;
+  let netH=T+D+H;
+
+  const sideMargin=90;
+  const topSafe=250;
+  const bottomSafe=110;
+  const availW=canvas.width-(sideMargin*2);
+  const availH=canvas.height-topSafe-bottomSafe;
+
+  const scale=Math.min(availW/netW,availH/netH);
+  W*=scale;D*=scale;H*=scale;T*=scale;netW*=scale;netH*=scale;
+
+  const startX=(canvas.width-netW)/2;
+  const startY=topSafe+((availH-netH)/2);
+
+  const leftX=startX;
   const frontX=leftX+D;
   const rightX=frontX+W;
   const backX=rightX+D;
   const tabX=backX+W;
-  const roofY=offsetY+T;
+  const roofY=startY+T;
   const wallY=roofY+D;
 
   drawImagePanel(loaded.top,frontX,roofY,W,D,"top");
@@ -210,61 +237,6 @@ function drawHorizontalNet(offsetX,offsetY,W,D,H,T){
   drawFold(frontX,wallY,frontX,wallY+H);
   drawFold(rightX,wallY,rightX,wallY+H);
   drawFold(backX,wallY,backX,wallY+H);
-}
-
-function generateTemplate(){
-  const paper=getPaper();
-  canvas.width=paper.width;canvas.height=paper.height;
-  ctx.fillStyle="#fff";ctx.fillRect(0,0,canvas.width,canvas.height);
-
-  const MM_TO_PX=300/25.4;
-  const title=document.getElementById("templateTitle").value || "APOC Building";
-
-  ctx.fillStyle="#111";
-  ctx.textAlign="center";
-  ctx.textBaseline="middle";
-  ctx.font="bold 86px Arial";
-  ctx.fillText(title,canvas.width/2,125);
-  ctx.font="36px Arial";
-  ctx.fillText("Cut solid lines. Fold dotted lines. Glue the pale yellow tabs.",canvas.width/2,195);
-
-  const Wmm=Number(document.getElementById("boxW").value);
-  const Dmm=Number(document.getElementById("boxD").value);
-  const Hmm=Number(document.getElementById("boxH").value);
-  const Tmm=Number(document.getElementById("tabSize").value);
-
-  let W=Wmm*MM_TO_PX, D=Dmm*MM_TO_PX, H=Hmm*MM_TO_PX, T=Tmm*MM_TO_PX;
-  let netW=D+W+D+W+T;
-  let netH=T+D+H;
-
-  const margin=100;
-  const topSafe=280;
-  const bottomSafe=110;
-  const availW=canvas.width-(margin*2);
-  const availH=canvas.height-topSafe-bottomSafe;
-
-  const portrait=document.getElementById("paperLayout").value==="portrait";
-
-  let scale;
-  if(portrait){
-    // Rotate the complete net 90 degrees, making it tall and narrow on portrait A4.
-    scale=Math.min(availW/netH,availH/netW);
-  }else{
-    scale=Math.min(availW/netW,availH/netH);
-  }
-
-  W*=scale;D*=scale;H*=scale;T*=scale;
-  netW*=scale;netH*=scale;
-
-  if(portrait){
-    ctx.save();
-    ctx.translate(canvas.width/2,topSafe+(availH/2));
-    ctx.rotate(-Math.PI/2);
-    drawHorizontalNet(-netW/2,-netH/2,W,D,H,T);
-    ctx.restore();
-  }else{
-    drawHorizontalNet((canvas.width-netW)/2,topSafe+((availH-netH)/2),W,D,H,T);
-  }
 
   const printedW=(Wmm*scale).toFixed(1);
   const printedD=(Dmm*scale).toFixed(1);
@@ -274,8 +246,8 @@ function generateTemplate(){
   ctx.fillStyle="#111";
   ctx.textAlign="center";
   ctx.textBaseline="middle";
-  ctx.font="32px Arial";
-  ctx.fillText(`A4 ${paper.orientation} auto-fit: ${scalePercent}% scale. Final model approx ${printedW}mm W x ${printedD}mm D x ${printedH}mm H`,canvas.width/2,canvas.height-55);
+  ctx.font="28px Arial";
+  ctx.fillText(`A4 landscape auto-fit: ${scalePercent}% scale. Final model approx ${printedW}mm W x ${printedD}mm D x ${printedH}mm H`,canvas.width/2,canvas.height-55);
 }
 
 function safeFileName(name){return (name || "apoc-building").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");}
@@ -286,7 +258,7 @@ function downloadPDF(){
   generateTemplate();
   const paper=getPaper();
   const {jsPDF}=window.jspdf;
-  const pdf=new jsPDF({orientation:paper.orientation,unit:"mm",format:"a4"});
+  const pdf=new jsPDF({orientation:"landscape",unit:"mm",format:"a4"});
   const pageW=pdf.internal.pageSize.getWidth();
   const pageH=pdf.internal.pageSize.getHeight();
   pdf.addImage(canvas.toDataURL("image/png",1),"PNG",0,0,pageW,pageH);
@@ -301,8 +273,7 @@ function saveProject(){
       depth:document.getElementById("boxD").value,
       height:document.getElementById("boxH").value,
       tab:document.getElementById("tabSize").value,
-      fit:document.getElementById("fitMode").value,
-      paperLayout:document.getElementById("paperLayout").value
+      fit:document.getElementById("fitMode").value
     },
     rotations:{
       front:document.getElementById("frontRot").value,
@@ -340,7 +311,6 @@ document.getElementById("projectLoader").addEventListener("change",e=>{
     document.getElementById("boxH").value=project.settings.height;
     document.getElementById("tabSize").value=project.settings.tab;
     document.getElementById("fitMode").value=project.settings.fit || "fill";
-    document.getElementById("paperLayout").value=project.settings.paperLayout || "portrait";
     document.getElementById("frontRot").value=project.rotations.front;
     document.getElementById("backRot").value=project.rotations.back;
     document.getElementById("leftRot").value=project.rotations.left;
@@ -355,6 +325,5 @@ document.getElementById("projectLoader").addEventListener("change",e=>{
 
 generateTemplate();
 </script>
-
 </body>
 </html>
