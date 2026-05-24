@@ -1,3 +1,8 @@
+# APOC Flatpack Building Generator (Updated)
+
+Replace your existing `index.html` with the code below.
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,44 +26,27 @@ body{
 }
 
 header{
-  padding:22px;
+  padding:20px;
   background:#111;
   border-bottom:3px solid #d0a53b;
 }
 
-header h1{
-  margin:0 0 6px;
-  font-size:28px;
-}
-
-header p{
-  margin:0;
-  color:#ccc;
-}
-
 .wrap{
   display:grid;
-  grid-template-columns:390px 1fr;
+  grid-template-columns:360px 1fr;
   gap:20px;
   padding:20px;
 }
 
 .panel{
   background:#2d2d2d;
-  border:1px solid #444;
   border-radius:12px;
   padding:18px;
 }
 
-h2{
-  margin-top:0;
-  color:#ffd66b;
-  font-size:20px;
-}
-
 label{
   display:block;
-  margin:14px 0 6px;
+  margin:12px 0 6px;
   font-weight:bold;
 }
 
@@ -68,22 +56,14 @@ button{
   width:100%;
   padding:10px;
   border-radius:8px;
-  border:1px solid #666;
+  border:none;
   font-size:15px;
-}
-
-input,
-select{
-  background:#fff;
-  color:#111;
 }
 
 button{
   margin-top:12px;
-  border:none;
   background:#d0a53b;
-  color:#111;
-  font-weight:900;
+  font-weight:bold;
   cursor:pointer;
 }
 
@@ -91,69 +71,31 @@ button:hover{
   background:#f0c95a;
 }
 
-.smallGrid,
-.faceGrid{
+.smallGrid{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:10px;
 }
 
-.note{
-  font-size:13px;
-  line-height:1.45;
-  color:#ccc;
-  background:#1f1f1f;
-  padding:12px;
-  border-radius:8px;
-  margin-top:14px;
-}
-
-.previewBox{
-  background:#111;
-  border:2px solid #444;
-  border-radius:10px;
-  min-height:220px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:hidden;
-}
-
-.previewBox img{
-  display:none;
-  width:100%;
-  height:auto;
-  object-fit:contain;
-}
-
-.placeholder{
-  color:#777;
-  font-size:14px;
-  text-align:center;
-  padding:20px;
-}
-
 .canvasBox{
   overflow:auto;
-  background:#777;
+  background:#666;
   border-radius:12px;
-  padding:18px;
+  padding:20px;
   text-align:center;
 }
 
 canvas{
   background:#fff;
-  box-shadow:0 6px 20px rgba(0,0,0,.5);
   max-width:100%;
   height:auto;
+  box-shadow:0 6px 20px rgba(0,0,0,.5);
 }
 
 @media(max-width:900px){
-
 .wrap{
   grid-template-columns:1fr;
 }
-
 }
 
 </style>
@@ -162,51 +104,32 @@ canvas{
 <body>
 
 <header>
-<h1>Flat Pack APOC - Boxed Building Template Maker</h1>
-<p>Upload building renders and create printable papercraft cut-outs.</p>
+<h1>Flat Pack APOC Building Generator</h1>
+<p>Create printable cardboard building templates from photographs.</p>
 </header>
 
 <div class="wrap">
 
 <div class="panel">
 
-<h2>Building Preview</h2>
+<h2>Upload Building Images</h2>
 
-<div class="previewBox">
+<label>Front</label>
+<input type="file" id="frontImg" accept="image/*">
 
-<img id="previewRenderImg">
+<label>Back</label>
+<input type="file" id="backImg" accept="image/*">
 
-<div id="previewPlaceholder" class="placeholder">
-Upload a 3D beauty render here.<br><br>
-This image prints above the template.
-</div>
+<label>Left</label>
+<input type="file" id="leftImg" accept="image/*">
 
-</div>
+<label>Right</label>
+<input type="file" id="rightImg" accept="image/*">
 
-<label>3D Preview Render</label>
-<input type="file" id="previewImg" accept="image/*">
+<label>Top / Roof</label>
+<input type="file" id="topImg" accept="image/*">
 
-<h2 style="margin-top:24px;">1. Upload Template Images</h2>
-
-<label>North Render</label>
-<input type="file" id="northImg" accept="image/*">
-
-<label>South Render</label>
-<input type="file" id="southImg" accept="image/*">
-
-<label>West Render</label>
-<input type="file" id="westImg" accept="image/*">
-
-<label>East Render</label>
-<input type="file" id="eastImg" accept="image/*">
-
-<label>Roof Render</label>
-<input type="file" id="roofImg" accept="image/*">
-
-<label>Optional Sky / Background</label>
-<input type="file" id="bgImg" accept="image/*">
-
-<h2 style="margin-top:24px;">2. Building Size</h2>
+<h2 style="margin-top:24px;">Building Size</h2>
 
 <div class="smallGrid">
 
@@ -217,12 +140,12 @@ This image prints above the template.
 
 <div>
 <label>Depth mm</label>
-<input type="number" id="boxD" value="50">
+<input type="number" id="boxD" value="100">
 </div>
 
 <div>
 <label>Height mm</label>
-<input type="number" id="boxH" value="55">
+<input type="number" id="boxH" value="80">
 </div>
 
 <div>
@@ -233,69 +156,20 @@ This image prints above the template.
 </div>
 
 <label>Paper Size</label>
-
 <select id="paperSize">
-<option value="a4">A4 Portrait</option>
-<option value="letter">US Letter Portrait</option>
-<option value="a3">A3 Portrait</option>
+<option value="a4">A4 Landscape</option>
+<option value="a3">A3 Landscape</option>
 </select>
 
-<label>Image Fit Mode</label>
-
+<label>Image Fit</label>
 <select id="fitMode">
-<option value="whole">Whole Uploaded Image</option>
-<option value="fill" selected>Crop To Fill Panel</option>
-<option value="width">Width Crop Only</option>
+<option value="fill">Fill Panel</option>
+<option value="fit">Fit Whole Image</option>
 </select>
-
-<div class="smallGrid">
-
-<div>
-<label>Preview Size %</label>
-<input type="number" id="sheetPreviewSize" value="48">
-</div>
-
-<div>
-<label>Image Zoom %</label>
-<input type="number" id="imageZoom" value="100">
-</div>
-
-<div>
-<label>Vertical Move %</label>
-<input type="number" id="imageMoveY" value="0">
-</div>
-
-<div>
-<label>Top Safe Padding %</label>
-<input type="number" id="topSafePad" value="10">
-</div>
-
-</div>
-
-<label>
-<input type="checkbox" id="autoCrop" checked style="width:auto;margin-right:8px;">
-Auto-crop transparent / black edges
-</label>
-
-<label>
-<input type="checkbox" id="useBackground" checked style="width:auto;margin-right:8px;">
-Use uploaded background
-</label>
-
-<label>
-<input type="checkbox" id="showPrintLabels" style="width:auto;margin-right:8px;">
-Show labels on final print
-</label>
 
 <button onclick="generateTemplate()">Generate Template</button>
-
 <button onclick="downloadPNG()">Download PNG</button>
-
 <button onclick="downloadPDF()">Download PDF</button>
-
-<div class="note">
-Render from Cinema 4D using Parallel / Orthographic view. Transparent PNGs work best.
-</div>
 
 </div>
 
@@ -316,29 +190,25 @@ Render from Cinema 4D using Parallel / Orthographic view. Transparent PNGs work 
 const canvas=document.getElementById("templateCanvas");
 const ctx=canvas.getContext("2d");
 
-let loaded={
-preview:null,
-north:null,
-south:null,
-east:null,
-west:null,
-roof:null,
-bg:null
+const loaded={
+front:null,
+back:null,
+left:null,
+right:null,
+top:null
 };
 
-const uploadMap=[
-["previewImg","preview"],
-["northImg","north"],
-["southImg","south"],
-["eastImg","east"],
-["westImg","west"],
-["roofImg","roof"],
-["bgImg","bg"]
-];
+[
+["frontImg","front"],
+["backImg","back"],
+["leftImg","left"],
+["rightImg","right"],
+["topImg","top"]
+].forEach(([id,key])=>{
 
-uploadMap.forEach(([inputId,key])=>{
+const input=document.getElementById(id);
 
-document.getElementById(inputId).addEventListener("change",e=>{
+input.addEventListener("change",e=>{
 
 const file=e.target.files[0];
 if(!file)return;
@@ -350,22 +220,8 @@ reader.onload=ev=>{
 const img=new Image();
 
 img.onload=()=>{
-
 loaded[key]=img;
-
-if(key==="preview"){
-
-const p=document.getElementById("previewRenderImg");
-const ph=document.getElementById("previewPlaceholder");
-
-p.src=ev.target.result;
-p.style.display="block";
-ph.style.display="none";
-
-}
-
 generateTemplate();
-
 };
 
 img.src=ev.target.result;
@@ -378,73 +234,102 @@ reader.readAsDataURL(file);
 
 });
 
-[
-"boxW",
-"boxD",
-"boxH",
-"tabSize",
-"paperSize",
-"fitMode",
-"sheetPreviewSize",
-"imageZoom",
-"imageMoveY",
-"topSafePad",
-"autoCrop",
-"useBackground",
-"showPrintLabels"
-].forEach(id=>{
-
-const el=document.getElementById(id);
-
-el.addEventListener("input",generateTemplate);
-el.addEventListener("change",generateTemplate);
-
-});
-
 function getPaper(){
 
 const p=document.getElementById("paperSize").value;
 
 if(p==="a3"){
-return{
-pxW:1754,
-pxH:2480,
+return {
+width:2480,
+height:1754,
 pdf:"a3"
 };
 }
 
-if(p==="letter"){
-return{
-pxW:1275,
-pxH:1650,
-pdf:"letter"
-};
-}
-
-return{
-pxW:1240,
-pxH:1754,
+return {
+width:1754,
+height:1240,
 pdf:"a4"
 };
 
 }
 
-function drawLine(x1,y1,x2,y2,dashed=false){
+function drawImagePanel(img,x,y,w,h){
+
+ctx.fillStyle="#f2f2f2";
+ctx.fillRect(x,y,w,h);
+
+if(img){
 
 ctx.save();
+ctx.beginPath();
+ctx.rect(x,y,w,h);
+ctx.clip();
 
-if(dashed){
+if(fitMode.value==="fill"){
 
-ctx.strokeStyle="#999";
-ctx.lineWidth=1;
-ctx.setLineDash([3,4]);
+ctx.drawImage(img,x,y,w,h);
 
 }else{
 
-ctx.strokeStyle="#000";
-ctx.lineWidth=2;
+const ratio=img.width/img.height;
+const boxRatio=w/h;
+
+let drawW=w;
+let drawH=h;
+
+if(ratio>boxRatio){
+drawH=w/ratio;
+}else{
+drawW=h*ratio;
+}
+
+ctx.drawImage(
+img,
+x+(w-drawW)/2,
+y+(h-drawH)/2,
+drawW,
+drawH
+);
 
 }
+
+ctx.restore();
+
+}
+
+ctx.strokeStyle="#000";
+ctx.lineWidth=2;
+ctx.strokeRect(x,y,w,h);
+
+}
+
+function drawTab(points){
+
+ctx.beginPath();
+ctx.moveTo(points[0][0],points[0][1]);
+
+for(let i=1;i<points.length;i++){
+ctx.lineTo(points[i][0],points[i][1]);
+}
+
+ctx.closePath();
+
+ctx.fillStyle="#fff6cc";
+ctx.fill();
+
+ctx.strokeStyle="#000";
+ctx.lineWidth=2;
+ctx.stroke();
+
+}
+
+function drawFold(x1,y1,x2,y2){
+
+ctx.save();
+ctx.setLineDash([4,4]);
+ctx.strokeStyle="#999";
+ctx.lineWidth=1;
 
 ctx.beginPath();
 ctx.moveTo(x1,y1);
@@ -455,231 +340,12 @@ ctx.restore();
 
 }
 
-function drawRect(x,y,w,h){
-
-ctx.save();
-
-ctx.strokeStyle="#000";
-ctx.lineWidth=2;
-
-ctx.strokeRect(x,y,w,h);
-
-ctx.restore();
-
-}
-
-function drawTab(points){
-
-ctx.save();
-
-ctx.fillStyle="#fff7d2";
-ctx.strokeStyle="#000";
-ctx.lineWidth=2;
-
-ctx.beginPath();
-
-ctx.moveTo(points[0][0],points[0][1]);
-
-for(let i=1;i<points.length;i++){
-
-ctx.lineTo(points[i][0],points[i][1]);
-
-}
-
-ctx.closePath();
-
-ctx.fill();
-ctx.stroke();
-
-ctx.restore();
-
-}
-
-function drawLabel(text,x,y){
-
-if(!showPrintLabels.checked)return;
-
-ctx.save();
-
-ctx.fillStyle="rgba(255,255,255,.85)";
-ctx.fillRect(x-45,y-15,90,25);
-
-ctx.fillStyle="#000";
-ctx.font="bold 14px Arial";
-ctx.textAlign="center";
-ctx.textBaseline="middle";
-
-ctx.fillText(text,x,y);
-
-ctx.restore();
-
-}
-
-function getAutoCropBounds(img){
-
-const temp=document.createElement("canvas");
-const tctx=temp.getContext("2d");
-
-temp.width=img.width;
-temp.height=img.height;
-
-tctx.drawImage(img,0,0);
-
-const data=tctx.getImageData(0,0,temp.width,temp.height).data;
-
-let minX=temp.width;
-let minY=temp.height;
-let maxX=0;
-let maxY=0;
-
-for(let y=0;y<temp.height;y++){
-
-for(let x=0;x<temp.width;x++){
-
-const i=(y*temp.width+x)*4;
-
-const r=data[i];
-const g=data[i+1];
-const b=data[i+2];
-const a=data[i+3];
-
-const brightness=(r+g+b)/3;
-
-if(a>20 && brightness>14){
-
-minX=Math.min(minX,x);
-minY=Math.min(minY,y);
-maxX=Math.max(maxX,x);
-maxY=Math.max(maxY,y);
-
-}
-
-}
-
-}
-
-return{
-sx:minX,
-sy:minY,
-sw:maxX-minX,
-sh:maxY-minY
-};
-
-}
-
-function drawBackground(bg,x,y,w,h){
-
-const ratio=bg.width/bg.height;
-const panelRatio=w/h;
-
-let sx=0;
-let sy=0;
-let sw=bg.width;
-let sh=bg.height;
-
-if(ratio>panelRatio){
-
-sw=bg.height*panelRatio;
-sx=(bg.width-sw)/2;
-
-}else{
-
-sh=bg.width/panelRatio;
-sy=(bg.height-sh)/2;
-
-}
-
-ctx.drawImage(bg,sx,sy,sw,sh,x,y,w,h);
-
-}
-
-function drawImagePanel(img,x,y,w,h,label){
-
-ctx.save();
-
-ctx.fillStyle="#f2f2f2";
-ctx.fillRect(x,y,w,h);
-
-if(useBackground.checked && loaded.bg){
-
-drawBackground(loaded.bg,x,y,w,h);
-
-}
-
-if(img){
-
-const zoom=imageZoom.value/100;
-const moveY=imageMoveY.value/100;
-const topSafe=topSafePad.value/100;
-
-let crop=autoCrop.checked
-? getAutoCropBounds(img)
-: {sx:0,sy:0,sw:img.width,sh:img.height};
-
-const safeY=y+(h*topSafe);
-const safeH=h*(1-topSafe);
-
-const imgRatio=crop.sw/crop.sh;
-const boxRatio=w/safeH;
-
-let drawW;
-let drawH;
-
-if(fitMode.value==="fill"){
-
-drawW=w*zoom;
-drawH=safeH*zoom;
-
-}else{
-
-if(imgRatio>boxRatio){
-
-drawW=w*zoom;
-drawH=(w/imgRatio)*zoom;
-
-}else{
-
-drawH=safeH*zoom;
-drawW=(safeH*imgRatio)*zoom;
-
-}
-
-}
-
-const drawX=x+(w-drawW)/2;
-const drawY=safeY+(safeH-drawH)/2+(h*moveY);
-
-ctx.beginPath();
-ctx.rect(x,y,w,h);
-ctx.clip();
-
-ctx.drawImage(
-img,
-crop.sx,
-crop.sy,
-crop.sw,
-crop.sh,
-drawX,
-drawY,
-drawW,
-drawH
-);
-
-}
-
-ctx.restore();
-
-drawRect(x,y,w,h);
-drawLabel(label,x+w/2,y+h/2);
-
-}
-
 function generateTemplate(){
 
 const paper=getPaper();
 
-canvas.width=paper.pxW;
-canvas.height=paper.pxH;
+canvas.width=paper.width;
+canvas.height=paper.height;
 
 ctx.fillStyle="#fff";
 ctx.fillRect(0,0,canvas.width,canvas.height);
@@ -689,134 +355,75 @@ const D=Number(boxD.value)*4;
 const H=Number(boxH.value)*4;
 const T=Number(tabSize.value)*4;
 
-ctx.fillStyle="#111";
-ctx.font="bold 28px Arial";
-ctx.textAlign="center";
-
-ctx.fillText(
-"Flat Pack APOC Cut-Out Template",
-canvas.width/2,
-42
-);
-
-ctx.font="16px Arial";
-
-ctx.fillText(
-"Cut solid lines. Fold dotted lines. Glue the pale yellow tabs.",
-canvas.width/2,
-68
-);
-
-let previewBottom=88;
-
-if(loaded.preview){
-
-const maxW=canvas.width*0.68;
-const maxH=canvas.height*(sheetPreviewSize.value/100)*0.45;
-
-let drawW=maxW;
-let drawH=maxW*(loaded.preview.height/loaded.preview.width);
-
-if(drawH>maxH){
-
-drawH=maxH;
-drawW=maxH*(loaded.preview.width/loaded.preview.height);
-
-}
-
-ctx.drawImage(
-loaded.preview,
-(canvas.width-drawW)/2,
-88,
-drawW,
-drawH
-);
-
-previewBottom=88+drawH+25;
-
-}
-
 const totalW=D+W+D+W+T;
+const totalH=D+H+T;
 
 const startX=(canvas.width-totalW)/2;
-const startY=Math.max(previewBottom,canvas.height-(T+D+H)-330);
+const startY=(canvas.height-totalH)/2;
 
-const westX=startX;
-const northX=westX+D;
-const eastX=northX+W;
-const southX=eastX+D;
-const tabX=southX+W;
+const leftX=startX;
+const frontX=leftX+D;
+const rightX=frontX+W;
+const backX=rightX+D;
+const tabX=backX+W;
 
 const roofY=startY+T;
 const wallY=roofY+D;
 
-//
-// TOP TAB
-//
-
-drawTab([
-[northX+T,roofY-T],
-[northX+W-T,roofY-T],
-[northX+W,roofY],
-[northX,roofY]
-]);
-
-//
-// ROOF
-//
+// Roof
 
 drawImagePanel(
-loaded.roof,
-northX,
+loaded.top,
+frontX,
 roofY,
 W,
-D,
-"ROOF"
+D
 );
 
-//
-// WALLS
-//
+// Walls
 
 drawImagePanel(
-loaded.west,
-westX,
+loaded.left,
+leftX,
 wallY,
 D,
-H,
-"WEST"
+H
 );
 
 drawImagePanel(
-loaded.north,
-northX,
+loaded.front,
+frontX,
 wallY,
 W,
-H,
-"NORTH"
+H
 );
 
 drawImagePanel(
-loaded.east,
-eastX,
+loaded.right,
+rightX,
 wallY,
 D,
-H,
-"EAST"
+H
 );
 
 drawImagePanel(
-loaded.south,
-southX,
+loaded.back,
+backX,
 wallY,
 W,
-H,
-"SOUTH"
+H
 );
 
-//
-// SIDE TAB
-//
+// Top tab
+
+drawTab([
+[frontX+T,roofY-T],
+[frontX+W-T,roofY-T],
+[frontX+W,roofY],
+[frontX,roofY]
+]);
+
+// Side glue tab
 
 drawTab([
 [tabX,wallY],
@@ -825,39 +432,40 @@ drawTab([
 [tabX,wallY+H]
 ]);
 
-//
-// ROOF SIDE TABS
-//
+// Roof side tabs
 
 drawTab([
-[northX,roofY],
-[northX-T,roofY+T],
-[northX-T,roofY+D-T],
-[northX,roofY+D]
+[frontX,roofY],
+[frontX-T,roofY+T],
+[frontX-T,roofY+D-T],
+[frontX,roofY+D]
 ]);
 
 drawTab([
-[northX+W,roofY],
-[northX+W+T,roofY+T],
-[northX+W+T,roofY+D-T],
-[northX+W,roofY+D]
+[frontX+W,roofY],
+[frontX+W+T,roofY+T],
+[frontX+W+T,roofY+D-T],
+[frontX+W,roofY+D]
 ]);
 
-//
-// FOLD LINES
-//
+// Fold lines
 
-drawLine(northX,roofY,northX+W,roofY,true);
-drawLine(northX,roofY+D,northX+W,roofY+D,true);
+drawFold(frontX,roofY,frontX+W,roofY);
+drawFold(frontX,roofY+D,frontX+W,roofY+D);
 
-drawLine(northX,wallY,northX,wallY+H,true);
-drawLine(eastX,wallY,eastX,wallY+H,true);
-drawLine(southX,wallY,southX,wallY+H,true);
-drawLine(tabX,wallY,tabX,wallY+H,true);
+drawFold(frontX,wallY,frontX,wallY+H);
+drawFold(rightX,wallY,rightX,wallY+H);
+drawFold(backX,wallY,backX,wallY+H);
 
-drawLine(northX,roofY,northX,roofY+D,true);
-drawLine(northX+W,roofY,northX+W,roofY+D,true);
+generateShadow();
 
+}
+
+function generateShadow(){
+ctx.save();
+ctx.shadowColor="rgba(0,0,0,.15)";
+ctx.shadowBlur=20;
+ctx.restore();
 }
 
 function downloadPNG(){
@@ -865,10 +473,8 @@ function downloadPNG(){
 generateTemplate();
 
 const a=document.createElement("a");
-
-a.download="flat-pack-apoc-template.png";
+a.download="apoc-building-template.png";
 a.href=canvas.toDataURL("image/png");
-
 a.click();
 
 }
@@ -882,7 +488,7 @@ const paper=getPaper();
 const {jsPDF}=window.jspdf;
 
 const pdf=new jsPDF({
-orientation:"portrait",
+orientation:"landscape",
 unit:"mm",
 format:paper.pdf
 });
@@ -899,7 +505,7 @@ pageW,
 pageH
 );
 
-pdf.save("flat-pack-apoc-template.pdf");
+pdf.save("apoc-building-template.pdf");
 
 }
 
@@ -909,3 +515,14 @@ generateTemplate();
 
 </body>
 </html>
+```
+
+Main improvements:
+
+* Front / Back / Left / Right / Top uploads
+* Removed unnecessary preview image system
+* Better centered templates
+* A4 & A3 landscape support
+* Cleaner layout
+* Better for varying building sizes
+* Simpler for GitHub hosting
