@@ -20,6 +20,10 @@ button.secondary{background:#444;color:#fff}
 .smallGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .uploadBlock{border:1px solid #444;border-radius:10px;padding:10px;margin-bottom:10px;background:#242424}
 .uploadRow{display:grid;grid-template-columns:1fr 105px;gap:10px}
+.cropGrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px}
+.cropGrid label{font-size:12px;margin:0 0 4px;color:#ddd}
+.cropGrid input{padding:7px;font-size:13px}
+.resetCrop{margin-top:8px;background:#555;color:#fff;padding:8px;font-size:13px}
 .canvasBox{overflow:auto;background:#666;border-radius:12px;padding:20px;text-align:center}
 canvas{background:#fff;max-width:100%;height:auto;box-shadow:0 6px 20px rgba(0,0,0,.5)}
 .note{font-size:13px;color:#ccc;line-height:1.4;margin-top:14px}
@@ -38,11 +42,41 @@ canvas{background:#fff;max-width:100%;height:auto;box-shadow:0 6px 20px rgba(0,0
 <button onclick="saveProject()">Save Building Project JSON</button>
 <button class="secondary" onclick="document.getElementById('projectLoader').click()">Load Building Project JSON</button>
 <input type="file" id="projectLoader" accept=".json" style="display:none">
-<div class="uploadBlock"><label>Front</label><div class="uploadRow"><input type="file" id="frontImg" accept="image/*"><select id="frontRot"><option value="0" selected>0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option></select></div></div>
-<div class="uploadBlock"><label>Back</label><div class="uploadRow"><input type="file" id="backImg" accept="image/*"><select id="backRot"><option value="0">0°</option><option value="90">90°</option><option value="180" selected>180°</option><option value="270">270°</option></select></div></div>
-<div class="uploadBlock"><label>Left</label><div class="uploadRow"><input type="file" id="leftImg" accept="image/*"><select id="leftRot"><option value="0">0°</option><option value="90" selected>90°</option><option value="180">180°</option><option value="270">270°</option></select></div></div>
-<div class="uploadBlock"><label>Right</label><div class="uploadRow"><input type="file" id="rightImg" accept="image/*"><select id="rightRot"><option value="0">0°</option><option value="90">90°</option><option value="180">180°</option><option value="270" selected>270°</option></select></div></div>
-<div class="uploadBlock"><label>Top / Roof</label><div class="uploadRow"><input type="file" id="topImg" accept="image/*"><select id="topRot"><option value="0" selected>0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option></select></div></div>
+<div class="uploadBlock"><label>Front</label><div class="uploadRow"><input type="file" id="frontImg" accept="image/*"><select id="frontRot"><option value="0" selected>0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option></select></div>
+<div class="cropGrid">
+<div><label>Zoom %</label><input type="number" id="frontZoom" value="100" min="10" max="500" step="5"></div>
+<div><label>Move X</label><input type="number" id="frontX" value="0" step="1"></div>
+<div><label>Move Y</label><input type="number" id="frontY" value="0" step="1"></div>
+</div>
+<button type="button" class="resetCrop" onclick="resetCrop('front')">Reset Front Crop</button></div>
+<div class="uploadBlock"><label>Back</label><div class="uploadRow"><input type="file" id="backImg" accept="image/*"><select id="backRot"><option value="0">0°</option><option value="90">90°</option><option value="180" selected>180°</option><option value="270">270°</option></select></div>
+<div class="cropGrid">
+<div><label>Zoom %</label><input type="number" id="backZoom" value="100" min="10" max="500" step="5"></div>
+<div><label>Move X</label><input type="number" id="backX" value="0" step="1"></div>
+<div><label>Move Y</label><input type="number" id="backY" value="0" step="1"></div>
+</div>
+<button type="button" class="resetCrop" onclick="resetCrop('back')">Reset Back Crop</button></div>
+<div class="uploadBlock"><label>Left</label><div class="uploadRow"><input type="file" id="leftImg" accept="image/*"><select id="leftRot"><option value="0">0°</option><option value="90" selected>90°</option><option value="180">180°</option><option value="270">270°</option></select></div>
+<div class="cropGrid">
+<div><label>Zoom %</label><input type="number" id="leftZoom" value="100" min="10" max="500" step="5"></div>
+<div><label>Move X</label><input type="number" id="leftX" value="0" step="1"></div>
+<div><label>Move Y</label><input type="number" id="leftY" value="0" step="1"></div>
+</div>
+<button type="button" class="resetCrop" onclick="resetCrop('left')">Reset Left Crop</button></div>
+<div class="uploadBlock"><label>Right</label><div class="uploadRow"><input type="file" id="rightImg" accept="image/*"><select id="rightRot"><option value="0">0°</option><option value="90">90°</option><option value="180">180°</option><option value="270" selected>270°</option></select></div>
+<div class="cropGrid">
+<div><label>Zoom %</label><input type="number" id="rightZoom" value="100" min="10" max="500" step="5"></div>
+<div><label>Move X</label><input type="number" id="rightX" value="0" step="1"></div>
+<div><label>Move Y</label><input type="number" id="rightY" value="0" step="1"></div>
+</div>
+<button type="button" class="resetCrop" onclick="resetCrop('right')">Reset Right Crop</button></div>
+<div class="uploadBlock"><label>Top / Roof</label><div class="uploadRow"><input type="file" id="topImg" accept="image/*"><select id="topRot"><option value="0" selected>0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option></select></div>
+<div class="cropGrid">
+<div><label>Zoom %</label><input type="number" id="topZoom" value="100" min="10" max="500" step="5"></div>
+<div><label>Move X</label><input type="number" id="topX" value="0" step="1"></div>
+<div><label>Move Y</label><input type="number" id="topY" value="0" step="1"></div>
+</div>
+<button type="button" class="resetCrop" onclick="resetCrop('top')">Reset Top / Roof Crop</button></div>
 <div class="smallGrid">
 <div><label>Width mm</label><input type="number" id="boxW" value="100"></div>
 <div><label>Depth mm</label><input type="number" id="boxD" value="100"></div>
@@ -57,7 +91,7 @@ canvas{background:#fff;max-width:100%;height:auto;box-shadow:0 6px 20px rgba(0,0
 <select id="fitMode"><option value="fill">Fill Panel</option><option value="fit">Fit Whole Image</option><option value="stretch">Stretch To Panel</option></select>
 <button onclick="downloadPNG()">Download PNG</button>
 <button onclick="downloadPDF()">Download PDF</button>
-<div class="note">The roof sits in the centre with the walls folding around it.</div>
+<div class="note">The roof sits in the centre with the walls folding around it. Use Zoom and Move X/Y to crop each photo without Photoshop.</div>
 </div>
 <div class="panel"><div class="canvasBox"><canvas id="templateCanvas"></canvas></div></div>
 </div>
@@ -80,7 +114,7 @@ const keys=['front','back','left','right','top'];
  reader.readAsDataURL(file);
  });
 });
-['templateTitle','boxW','boxD','boxH','tabSize','paperLayout','scaleMode','fitMode','frontRot','backRot','leftRot','rightRot','topRot'].forEach(id=>{
+['templateTitle','boxW','boxD','boxH','tabSize','paperLayout','scaleMode','fitMode',...keys.flatMap(key=>[key+'Rot',key+'Zoom',key+'X',key+'Y'])].forEach(id=>{
  const el=document.getElementById(id);
  el.addEventListener('input',generateTemplate);
  el.addEventListener('change',generateTemplate);
@@ -91,14 +125,28 @@ function getPaper(){
  return {width:2480,height:3508,orientation:'portrait'};
 }
 function getRotation(key){return Number(document.getElementById(key+'Rot').value||0);}
-function drawRotatedImage(img,x,y,w,h,rotation){
+function getCrop(key){
+ return {
+  zoom:Number(document.getElementById(key+'Zoom').value||100)/100,
+  x:Number(document.getElementById(key+'X').value||0),
+  y:Number(document.getElementById(key+'Y').value||0)
+ };
+}
+function resetCrop(key){
+ document.getElementById(key+'Zoom').value=100;
+ document.getElementById(key+'X').value=0;
+ document.getElementById(key+'Y').value=0;
+ generateTemplate();
+}
+function drawRotatedImage(img,x,y,w,h,rotation,key){
  ctx.save();ctx.beginPath();ctx.rect(x,y,w,h);ctx.clip();
- ctx.translate(x+w/2,y+h/2);ctx.rotate(rotation*Math.PI/180);
+ const crop=getCrop(key);
+ ctx.translate(x+w/2+crop.x,y+h/2+crop.y);ctx.rotate(rotation*Math.PI/180);
  const rotated=rotation===90||rotation===270;
  const mode=document.getElementById('fitMode').value;
  if(mode==='stretch'){
- if(rotated)ctx.drawImage(img,-h/2,-w/2,h,w);
- else ctx.drawImage(img,-w/2,-h/2,w,h);
+ if(rotated)ctx.drawImage(img,-(h*crop.zoom)/2,-(w*crop.zoom)/2,h*crop.zoom,w*crop.zoom);
+ else ctx.drawImage(img,-(w*crop.zoom)/2,-(h*crop.zoom)/2,w*crop.zoom,h*crop.zoom);
  ctx.restore();return;
  }
  const imgW=rotated?img.height:img.width;
@@ -111,11 +159,13 @@ function drawRotatedImage(img,x,y,w,h,rotation){
  }else{
  if(ratio>boxRatio){drawW=w;drawH=w/ratio;}else{drawH=h;drawW=h*ratio;}
  }
+ drawW*=crop.zoom;
+ drawH*=crop.zoom;
  if(rotated)ctx.drawImage(img,-drawH/2,-drawW/2,drawH,drawW);
  else ctx.drawImage(img,-drawW/2,-drawH/2,drawW,drawH);
  ctx.restore();
 }
-function drawPanel(img,x,y,w,h,key){ctx.fillStyle='#f2f2f2';ctx.fillRect(x,y,w,h);if(img)drawRotatedImage(img,x,y,w,h,getRotation(key));ctx.strokeStyle='#000';ctx.lineWidth=2;ctx.strokeRect(x,y,w,h);}
+function drawPanel(img,x,y,w,h,key){ctx.fillStyle='#f2f2f2';ctx.fillRect(x,y,w,h);if(img)drawRotatedImage(img,x,y,w,h,getRotation(key),key);ctx.strokeStyle='#000';ctx.lineWidth=2;ctx.strokeRect(x,y,w,h);}
 function drawTab(points){ctx.beginPath();ctx.moveTo(points[0][0],points[0][1]);for(let i=1;i<points.length;i++)ctx.lineTo(points[i][0],points[i][1]);ctx.closePath();ctx.fillStyle='#fff6cc';ctx.fill();ctx.strokeStyle='#000';ctx.lineWidth=2;ctx.stroke();}
 function drawFold(x1,y1,x2,y2){ctx.save();ctx.setLineDash([5,5]);ctx.strokeStyle='#777';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.restore();}
 function drawCrossNet(x,y,W,D,H,T){
@@ -192,6 +242,7 @@ function saveProject(){
    right:document.getElementById('rightRot').value,
    top:document.getElementById('topRot').value
   },
+  crops:Object.fromEntries(keys.map(key=>[key,{zoom:document.getElementById(key+'Zoom').value,x:document.getElementById(key+'X').value,y:document.getElementById(key+'Y').value}])),
   images:imageData
  };
  const blob=new Blob([JSON.stringify(project,null,2)],{type:'application/json'});
@@ -225,8 +276,12 @@ document.getElementById('projectLoader').addEventListener('change',e=>{
    setValueIfExists('fitMode',s.fitMode||'fill');
 
    const r=project.rotations||{};
+   const c=project.crops||{};
    keys.forEach(key=>{
     setValueIfExists(key+'Rot',r[key]);
+    setValueIfExists(key+'Zoom',c[key]&&c[key].zoom!==undefined?c[key].zoom:100);
+    setValueIfExists(key+'X',c[key]&&c[key].x!==undefined?c[key].x:0);
+    setValueIfExists(key+'Y',c[key]&&c[key].y!==undefined?c[key].y:0);
     imageData[key]=project.images&&project.images[key]?project.images[key]:null;
     loaded[key]=null;
    });
