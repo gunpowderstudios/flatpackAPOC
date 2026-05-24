@@ -8,26 +8,153 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#202020;color:#f5f5f5}
-header{padding:20px;background:#111;border-bottom:3px solid #d0a53b}
-.wrap{display:grid;grid-template-columns:380px 1fr;gap:20px;padding:20px}
-.panel{background:#2d2d2d;border-radius:12px;padding:18px}
-label{display:block;margin:12px 0 6px;font-weight:bold}
-input,select,button{width:100%;padding:10px;border-radius:8px;border:none;font-size:15px}
-button{margin-top:12px;background:#d0a53b;font-weight:bold;cursor:pointer}
-button:hover{background:#f0c95a}
-button.secondary{background:#444;color:#fff}
-.smallGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.uploadBlock{border:1px solid #444;border-radius:10px;padding:10px;margin-bottom:10px;background:#242424}
-.uploadRow{display:grid;grid-template-columns:1fr 105px;gap:10px}
-.cropGrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px}
-.cropGrid label{font-size:12px;margin:0 0 4px;color:#ddd}
-.cropGrid input{padding:7px;font-size:13px}
-.resetCrop{margin-top:8px;background:#555;color:#fff;padding:8px;font-size:13px}
-.canvasBox{overflow:auto;background:#666;border-radius:12px;padding:20px;text-align:center}
-canvas{background:#fff;max-width:100%;height:auto;box-shadow:0 6px 20px rgba(0,0,0,.5)}
-.note{font-size:13px;color:#ccc;line-height:1.4;margin-top:14px}
-@media(max-width:900px){.wrap{grid-template-columns:1fr}}
+
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:#202020;
+  color:#f5f5f5;
+}
+
+header{
+  padding:20px;
+  background:#111;
+  border-bottom:3px solid #d0a53b;
+}
+
+.wrap{
+  display:grid;
+  grid-template-columns:380px 1fr;
+  gap:20px;
+  padding:20px;
+  height:100vh;
+  overflow:hidden;
+}
+
+.panel{
+  background:#2d2d2d;
+  border-radius:12px;
+  padding:18px;
+  min-height:0;
+}
+
+.panel:first-child{
+  overflow-y:auto;
+}
+
+label{
+  display:block;
+  margin:12px 0 6px;
+  font-weight:bold;
+}
+
+input,select,button{
+  width:100%;
+  padding:10px;
+  border-radius:8px;
+  border:none;
+  font-size:15px;
+}
+
+button{
+  margin-top:12px;
+  background:#d0a53b;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+button:hover{
+  background:#f0c95a;
+}
+
+button.secondary{
+  background:#444;
+  color:#fff;
+}
+
+.smallGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.uploadBlock{
+  border:1px solid #444;
+  border-radius:10px;
+  padding:10px;
+  margin-bottom:10px;
+  background:#242424;
+}
+
+.uploadRow{
+  display:grid;
+  grid-template-columns:1fr 105px;
+  gap:10px;
+}
+
+.cropGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:8px;
+  margin-top:10px;
+}
+
+.cropGrid label{
+  font-size:12px;
+  margin:0 0 4px;
+  color:#ddd;
+}
+
+.cropGrid input{
+  padding:7px;
+  font-size:13px;
+}
+
+.resetCrop{
+  margin-top:8px;
+  background:#555;
+  color:#fff;
+  padding:8px;
+  font-size:13px;
+}
+
+.canvasBox{
+  overflow:auto;
+  background:#666;
+  border-radius:12px;
+  padding:20px;
+  text-align:center;
+  height:100%;
+}
+
+canvas{
+  background:#fff;
+  max-width:100%;
+  height:auto;
+  box-shadow:0 6px 20px rgba(0,0,0,.5);
+}
+
+.note{
+  font-size:13px;
+  color:#ccc;
+  line-height:1.4;
+  margin-top:14px;
+}
+
+@media(max-width:900px){
+  .wrap{
+    grid-template-columns:1fr;
+    height:auto;
+  }
+
+  .panel:first-child{
+    overflow:visible;
+  }
+
+  .canvasBox{
+    height:auto;
+  }
+}
 </style>
 </head>
 <body>
