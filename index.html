@@ -280,10 +280,13 @@ function generateTemplate(){
   ctx.font="16px Arial";
   ctx.fillText("Cut solid lines. Fold dotted lines. Glue the pale yellow tabs.",canvas.width/2,76);
 
-  const W=Number(document.getElementById("boxW").value)*4;
-  const D=Number(document.getElementById("boxD").value)*4;
-  const H=Number(document.getElementById("boxH").value)*4;
-  const T=Number(document.getElementById("tabSize").value)*4;
+  // Accurate print scaling at 300 DPI
+  const MM_TO_PX = 11.811;
+
+  const W=Number(document.getElementById("boxW").value)*MM_TO_PX;
+  const D=Number(document.getElementById("boxD").value)*MM_TO_PX;
+  const H=Number(document.getElementById("boxH").value)*MM_TO_PX;
+  const T=Number(document.getElementById("tabSize").value)*MM_TO_PX;
   const totalW=D+W+D+W+T;
   const totalH=D+H+T;
   const startX=(canvas.width-totalW)/2;
