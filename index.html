@@ -128,10 +128,15 @@ function drawCrossNet(x,y,W,D,H,T){
  drawPanel(loaded.front,frontX,frontY,W,H,'front');
  drawPanel(loaded.left,leftX,leftY,H,D,'left');
  drawPanel(loaded.right,rightX,rightY,H,D,'right');
- drawTab([[leftX+T,leftY-T],[leftX+H-T,leftY-T],[leftX+H,leftY],[leftX,leftY]]);
- drawTab([[leftX,leftY+D],[leftX+H,leftY+D],[leftX+H-T,leftY+D+T],[leftX+T,leftY+D+T]]);
- drawTab([[rightX+T,rightY-T],[rightX+H-T,rightY-T],[rightX+H,rightY],[rightX,rightY]]);
- drawTab([[rightX,rightY+D],[rightX+H,rightY+D],[rightX+H-T,rightY+D+T],[rightX+T,rightY+D+T]]);
+
+ // On very small buildings, a full-width bevel can cross over itself.
+ // This keeps the glue tab full depth, but makes the side slants shallower.
+ const tabInset=Math.max(4,Math.min(T,H*0.18));
+
+ drawTab([[leftX+tabInset,leftY-T],[leftX+H-tabInset,leftY-T],[leftX+H,leftY],[leftX,leftY]]);
+ drawTab([[leftX,leftY+D],[leftX+H,leftY+D],[leftX+H-tabInset,leftY+D+T],[leftX+tabInset,leftY+D+T]]);
+ drawTab([[rightX+tabInset,rightY-T],[rightX+H-tabInset,rightY-T],[rightX+H,rightY],[rightX,rightY]]);
+ drawTab([[rightX,rightY+D],[rightX+H,rightY+D],[rightX+H-tabInset,rightY+D+T],[rightX+tabInset,rightY+D+T]]);
  drawFold(topX,topY,topX+W,topY);
  drawFold(topX,topY+D,topX+W,topY+D);
  drawFold(topX,topY,topX,topY+D);
