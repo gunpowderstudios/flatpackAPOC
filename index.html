@@ -4,325 +4,72 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Flat Pack APOC</title>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
 <style>
-*{box-sizing:border-box;}
-body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#202020;color:#f5f5f5;}
-header{padding:20px;background:#111;border-bottom:3px solid #d0a53b;}
-header h1{margin:0 0 6px;font-size:30px;color:#ffd66b;}
-header p{margin:0;color:#ddd;}
-.wrap{display:grid;grid-template-columns:380px 1fr;gap:20px;padding:20px;}
-.panel{background:#2d2d2d;border-radius:12px;padding:18px;}
-label{display:block;margin:12px 0 6px;font-weight:bold;}
-input,select,button{width:100%;padding:10px;border-radius:8px;border:none;font-size:15px;}
-button{margin-top:12px;background:#d0a53b;font-weight:bold;cursor:pointer;}
-button:hover{background:#f0c95a;}
-button.secondary{background:#444;color:#fff;}
-button.secondary:hover{background:#555;}
-.smallGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.uploadBlock{border:1px solid #444;border-radius:10px;padding:10px;margin-bottom:10px;background:#242424;}
-.canvasBox{overflow:auto;background:#666;border-radius:12px;padding:20px;text-align:center;}
-canvas{background:#fff;max-width:100%;height:auto;box-shadow:0 6px 20px rgba(0,0,0,.5);}
-.note{font-size:13px;color:#ccc;line-height:1.4;margin-top:14px;}
-hr{border:0;border-top:1px solid #444;margin:20px 0;}
-@media(max-width:900px){.wrap{grid-template-columns:1fr;}}
+*{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#202020;color:#f5f5f5}
+header{padding:20px;background:#111;border-bottom:3px solid #d0a53b} header h1{margin:0 0 8px;font-size:30px} header p{margin:0;color:#ccc}
+.wrap{display:grid;grid-template-columns:380px 1fr;gap:20px;padding:20px}.panel{background:#2d2d2d;border-radius:12px;padding:18px}
+h2{margin:0 0 14px;color:#ffd66b} label{display:block;margin:12px 0 6px;font-weight:bold}
+input,select,button{width:100%;padding:10px;border-radius:8px;border:none;font-size:15px}
+button{margin-top:12px;background:#d0a53b;font-weight:900;cursor:pointer}button:hover{background:#f0c95a}
+button.secondary{background:#444;color:#fff}.smallGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.uploadBlock{border:1px solid #444;border-radius:10px;padding:10px;margin-bottom:10px;background:#242424}
+.uploadRow{display:grid;grid-template-columns:1fr 105px;gap:10px;align-items:end}
+.canvasBox{overflow:auto;background:#666;border-radius:12px;padding:20px;text-align:center}
+canvas{background:#fff;max-width:100%;height:auto;box-shadow:0 6px 20px rgba(0,0,0,.5)}
+.note{font-size:13px;color:#ccc;line-height:1.4;margin-top:14px}hr{border:0;border-top:1px solid #444;margin:20px 0}
+@media(max-width:900px){.wrap{grid-template-columns:1fr}}
 </style>
 </head>
-
 <body>
-<header>
-<h1>Flat Pack APOC Building Generator</h1>
-<p>Create printable cardboard building templates from photographs.</p>
-</header>
-
-<div class="wrap">
-<div class="panel">
-
-<h2>Template Details</h2>
-<label>Template Title</label>
-<input type="text" id="templateTitle" value="APOC Hospital Building">
-
-<hr>
-<h2>Save / Load Building</h2>
+<header><h1>Flat Pack APOC Building Generator</h1><p>Create printable cardboard building templates from photographs.</p></header>
+<div class="wrap"><div class="panel">
+<h2>Template Details</h2><label>Template Title</label><input type="text" id="templateTitle" value="APOC Hospital Building">
+<hr><h2>Save / Load Building</h2>
 <button onclick="saveProject()">Save Building Project JSON</button>
 <button class="secondary" onclick="document.getElementById('projectLoader').click()">Load Building Project JSON</button>
 <input type="file" id="projectLoader" accept=".json" style="display:none;">
-<div class="note">Each building can be saved as a reusable project including all images, rotations and settings.</div>
-
-<hr>
-<h2>Upload Building Images</h2>
-
-<div class="uploadBlock"><label>Front</label><input type="file" id="frontImg" accept="image/*"><label>Rotate Front</label><select id="frontRot"><option value="0">0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option></select></div>
-<div class="uploadBlock"><label>Back</label><input type="file" id="backImg" accept="image/*"><label>Rotate Back</label><select id="backRot"><option value="0">0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option></select></div>
-<div class="uploadBlock"><label>Left</label><input type="file" id="leftImg" accept="image/*"><label>Rotate Left</label><select id="leftRot"><option value="0">0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option></select></div>
-<div class="uploadBlock"><label>Right</label><input type="file" id="rightImg" accept="image/*"><label>Rotate Right</label><select id="rightRot"><option value="0">0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option></select></div>
-<div class="uploadBlock"><label>Top / Roof</label><input type="file" id="topImg" accept="image/*"><label>Rotate Top / Roof</label><select id="topRot"><option value="0">0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option></select></div>
-
-<h2 style="margin-top:24px;">Building Size</h2>
-<div class="smallGrid">
+<div class="note">Each building can be saved as a reusable project including images, dimensions, rotations and fit settings.</div>
+<hr><h2>Upload Building Images</h2>
+<div class="uploadBlock"><label>Front</label><div class="uploadRow"><input type="file" id="frontImg" accept="image/*"><select id="frontRot"><option value="0">0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option></select></div></div>
+<div class="uploadBlock"><label>Back</label><div class="uploadRow"><input type="file" id="backImg" accept="image/*"><select id="backRot"><option value="0">0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option></select></div></div>
+<div class="uploadBlock"><label>Left</label><div class="uploadRow"><input type="file" id="leftImg" accept="image/*"><select id="leftRot"><option value="0">0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option></select></div></div>
+<div class="uploadBlock"><label>Right</label><div class="uploadRow"><input type="file" id="rightImg" accept="image/*"><select id="rightRot"><option value="0">0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option></select></div></div>
+<div class="uploadBlock"><label>Top / Roof</label><div class="uploadRow"><input type="file" id="topImg" accept="image/*"><select id="topRot"><option value="0">0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option></select></div></div>
+<hr><h2>Building Size</h2><div class="smallGrid">
 <div><label>Width mm</label><input type="number" id="boxW" value="100"></div>
 <div><label>Depth mm</label><input type="number" id="boxD" value="100"></div>
 <div><label>Height mm</label><input type="number" id="boxH" value="80"></div>
-<div><label>Glue Tab mm</label><input type="number" id="tabSize" value="8"></div>
-</div>
-
-<label>Image Fit</label>
-<select id="fitMode">
-<option value="fill">Fill Panel</option>
-<option value="fit">Fit Whole Image</option>
-<option value="stretch">Stretch To Panel</option>
-</select>
-
-<button onclick="generateTemplate()">Generate Template</button>
-<button onclick="downloadPNG()">Download PNG</button>
-<button onclick="downloadPDF()">Download PDF</button>
-
-<div class="note">A4 landscape only. The whole template auto-fits to the page and shows the final printed size at the bottom.</div>
-
-</div>
-
-<div class="panel">
-<h2>Preview</h2>
-<div class="canvasBox"><canvas id="templateCanvas"></canvas></div>
-</div>
-</div>
-
+<div><label>Glue Tab mm</label><input type="number" id="tabSize" value="8"></div></div>
+<label>Paper</label><select id="paperLayout"><option value="portrait" selected>A4 Portrait</option><option value="landscape">A4 Landscape</option></select>
+<label>Net Layout</label><select id="netLayout"><option value="cross" selected>Compact Cross Layout</option><option value="strip">Old Strip Layout</option></select>
+<label>Image Fit</label><select id="fitMode"><option value="fill">Fill Panel</option><option value="fit">Fit Whole Image</option><option value="stretch">Stretch To Panel</option></select>
+<button onclick="generateTemplate()">Generate Template</button><button onclick="downloadPNG()">Download PNG</button><button onclick="downloadPDF()">Download PDF</button>
+<div class="note">Compact Cross Layout uses your sketch: Back above, Front below, Left and Right beside the roof. It fits much better on A4.</div>
+</div><div class="panel"><h2>Preview</h2><div class="canvasBox"><canvas id="templateCanvas"></canvas></div></div></div>
 <script>
-const canvas=document.getElementById("templateCanvas");
-const ctx=canvas.getContext("2d");
-
+const canvas=document.getElementById("templateCanvas"); const ctx=canvas.getContext("2d");
 const loaded={front:null,back:null,left:null,right:null,top:null};
 const imageData={front:null,back:null,left:null,right:null,top:null};
 const keys=["front","back","left","right","top"];
-
 const uploads=[["frontImg","front"],["backImg","back"],["leftImg","left"],["rightImg","right"],["topImg","top"]];
-
-uploads.forEach(([id,key])=>{
-  document.getElementById(id).addEventListener("change",e=>{
-    const file=e.target.files[0];
-    if(!file)return;
-    const reader=new FileReader();
-    reader.onload=ev=>{
-      imageData[key]=ev.target.result;
-      const img=new Image();
-      img.onload=()=>{loaded[key]=img;generateTemplate();};
-      img.src=ev.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
-});
-
-["templateTitle","boxW","boxD","boxH","tabSize","fitMode","frontRot","backRot","leftRot","rightRot","topRot"].forEach(id=>{
-  const el=document.getElementById(id);
-  el.addEventListener("input",generateTemplate);
-  el.addEventListener("change",generateTemplate);
-});
-
-function getPaper(){
-  return {width:3508,height:2480,pdf:"a4",orientation:"landscape"};
-}
-
+uploads.forEach(([id,key])=>{document.getElementById(id).addEventListener("change",e=>{const file=e.target.files[0]; if(!file)return; const reader=new FileReader(); reader.onload=ev=>{imageData[key]=ev.target.result; const img=new Image(); img.onload=()=>{loaded[key]=img;generateTemplate();}; img.src=ev.target.result;}; reader.readAsDataURL(file);});});
+["templateTitle","boxW","boxD","boxH","tabSize","paperLayout","netLayout","fitMode","frontRot","backRot","leftRot","rightRot","topRot"].forEach(id=>{const el=document.getElementById(id);el.addEventListener("input",generateTemplate);el.addEventListener("change",generateTemplate);});
+function getPaper(){const l=document.getElementById("paperLayout").value; return l==="landscape"?{width:3508,height:2480,pdf:"a4",orientation:"landscape"}:{width:2480,height:3508,pdf:"a4",orientation:"portrait"};}
 function getRotation(key){return Number(document.getElementById(key+"Rot").value || 0);}
-
-function drawRotatedImage(img,x,y,w,h,rotation){
-  ctx.save();
-  ctx.beginPath();ctx.rect(x,y,w,h);ctx.clip();
-  ctx.translate(x+w/2,y+h/2);
-  ctx.rotate(rotation*Math.PI/180);
-
-  const rotated=rotation===90 || rotation===270;
-  const mode=document.getElementById("fitMode").value;
-
-  if(mode==="stretch"){
-    if(rotated) ctx.drawImage(img,-h/2,-w/2,h,w);
-    else ctx.drawImage(img,-w/2,-h/2,w,h);
-    ctx.restore();return;
-  }
-
-  const imgW=rotated ? img.height : img.width;
-  const imgH=rotated ? img.width : img.height;
-  const ratio=imgW/imgH;
-  const boxRatio=w/h;
-  let drawW,drawH;
-
-  if(mode==="fill"){
-    if(ratio>boxRatio){drawH=h;drawW=h*ratio;}else{drawW=w;drawH=w/ratio;}
-  }else{
-    if(ratio>boxRatio){drawW=w;drawH=w/ratio;}else{drawH=h;drawW=h*ratio;}
-  }
-
-  if(rotated) ctx.drawImage(img,-drawH/2,-drawW/2,drawH,drawW);
-  else ctx.drawImage(img,-drawW/2,-drawH/2,drawW,drawH);
-  ctx.restore();
-}
-
-function drawImagePanel(img,x,y,w,h,key){
-  ctx.fillStyle="#f2f2f2";
-  ctx.fillRect(x,y,w,h);
-  if(img) drawRotatedImage(img,x,y,w,h,getRotation(key));
-  ctx.strokeStyle="#000";ctx.lineWidth=2;ctx.strokeRect(x,y,w,h);
-}
-
-function drawTab(points){
-  ctx.beginPath();ctx.moveTo(points[0][0],points[0][1]);
-  for(let i=1;i<points.length;i++)ctx.lineTo(points[i][0],points[i][1]);
-  ctx.closePath();ctx.fillStyle="#fff6cc";ctx.fill();ctx.strokeStyle="#000";ctx.lineWidth=2;ctx.stroke();
-}
-
-function drawFold(x1,y1,x2,y2){
-  ctx.save();ctx.setLineDash([4,4]);ctx.strokeStyle="#999";ctx.lineWidth=1;
-  ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.restore();
-}
-
-function generateTemplate(){
-  const paper=getPaper();
-  canvas.width=paper.width;canvas.height=paper.height;
-  ctx.fillStyle="#fff";ctx.fillRect(0,0,canvas.width,canvas.height);
-
-  const MM_TO_PX=300/25.4;
-  const title=document.getElementById("templateTitle").value || "APOC Building";
-
-  ctx.fillStyle="#111";
-  ctx.textAlign="center";
-  ctx.textBaseline="middle";
-  ctx.font="bold 78px Arial";
-  ctx.fillText(title,canvas.width/2,115);
-  ctx.font="32px Arial";
-  ctx.fillText("Cut solid lines. Fold dotted lines. Glue the pale yellow tabs.",canvas.width/2,180);
-
-  const Wmm=Number(document.getElementById("boxW").value);
-  const Dmm=Number(document.getElementById("boxD").value);
-  const Hmm=Number(document.getElementById("boxH").value);
-  const Tmm=Number(document.getElementById("tabSize").value);
-
-  let W=Wmm*MM_TO_PX, D=Dmm*MM_TO_PX, H=Hmm*MM_TO_PX, T=Tmm*MM_TO_PX;
-  let netW=D+W+D+W+T;
-  let netH=T+D+H;
-
-  const sideMargin=15;
-  const topSafe=120;
-  const bottomSafe=40;
-  const availW=canvas.width-(sideMargin*2);
-  const availH=canvas.height-topSafe-bottomSafe;
-
-  const scale=Math.min(availW/netW,availH/netH);
-  W*=scale;D*=scale;H*=scale;T*=scale;netW*=scale;netH*=scale;
-
-  const startX=(canvas.width-netW)/2;
-  const startY=topSafe+((availH-netH)/2);
-
-  const leftX=startX;
-  const frontX=leftX+D;
-  const rightX=frontX+W;
-  const backX=rightX+D;
-  const tabX=backX+W;
-  const roofY=startY+T;
-  const wallY=roofY+D;
-
-  drawImagePanel(loaded.top,frontX,roofY,W,D,"top");
-  drawImagePanel(loaded.left,leftX,wallY,D,H,"left");
-  drawImagePanel(loaded.front,frontX,wallY,W,H,"front");
-  drawImagePanel(loaded.right,rightX,wallY,D,H,"right");
-  drawImagePanel(loaded.back,backX,wallY,W,H,"back");
-
-  drawTab([[frontX+T,roofY-T],[frontX+W-T,roofY-T],[frontX+W,roofY],[frontX,roofY]]);
-  drawTab([[tabX,wallY],[tabX+T,wallY+T],[tabX+T,wallY+H-T],[tabX,wallY+H]]);
-  drawTab([[frontX,roofY],[frontX-T,roofY+T],[frontX-T,roofY+D-T],[frontX,roofY+D]]);
-  drawTab([[frontX+W,roofY],[frontX+W+T,roofY+T],[frontX+W+T,roofY+D-T],[frontX+W,roofY+D]]);
-
-  drawFold(frontX,roofY,frontX+W,roofY);
-  drawFold(frontX,roofY+D,frontX+W,roofY+D);
-  drawFold(frontX,wallY,frontX,wallY+H);
-  drawFold(rightX,wallY,rightX,wallY+H);
-  drawFold(backX,wallY,backX,wallY+H);
-
-  const printedW=(Wmm*scale).toFixed(1);
-  const printedD=(Dmm*scale).toFixed(1);
-  const printedH=(Hmm*scale).toFixed(1);
-  const scalePercent=(scale*100).toFixed(1);
-
-  ctx.fillStyle="#111";
-  ctx.textAlign="center";
-  ctx.textBaseline="middle";
-  ctx.font="28px Arial";
-  ctx.fillText(`A4 landscape auto-fit: ${scalePercent}% scale. Final model approx ${printedW}mm W x ${printedD}mm D x ${printedH}mm H`,canvas.width/2,canvas.height-55);
-}
-
-function safeFileName(name){return (name || "apoc-building").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");}
-
+function drawRotatedImage(img,x,y,w,h,rotation){ctx.save();ctx.beginPath();ctx.rect(x,y,w,h);ctx.clip();ctx.translate(x+w/2,y+h/2);ctx.rotate(rotation*Math.PI/180);const rotated=rotation===90||rotation===270;const mode=document.getElementById("fitMode").value;if(mode==="stretch"){if(rotated)ctx.drawImage(img,-h/2,-w/2,h,w);else ctx.drawImage(img,-w/2,-h/2,w,h);ctx.restore();return;}const imgW=rotated?img.height:img.width;const imgH=rotated?img.width:img.height;const ratio=imgW/imgH;const boxRatio=w/h;let drawW,drawH;if(mode==="fill"){if(ratio>boxRatio){drawH=h;drawW=h*ratio;}else{drawW=w;drawH=w/ratio;}}else{if(ratio>boxRatio){drawW=w;drawH=w/ratio;}else{drawH=h;drawW=h*ratio;}}if(rotated)ctx.drawImage(img,-drawH/2,-drawW/2,drawH,drawW);else ctx.drawImage(img,-drawW/2,-drawH/2,drawW,drawH);ctx.restore();}
+function drawImagePanel(img,x,y,w,h,key){ctx.fillStyle="#f2f2f2";ctx.fillRect(x,y,w,h);if(img)drawRotatedImage(img,x,y,w,h,getRotation(key));ctx.strokeStyle="#000";ctx.lineWidth=2;ctx.strokeRect(x,y,w,h);}
+function drawTab(points){ctx.beginPath();ctx.moveTo(points[0][0],points[0][1]);for(let i=1;i<points.length;i++)ctx.lineTo(points[i][0],points[i][1]);ctx.closePath();ctx.fillStyle="#fff6cc";ctx.fill();ctx.strokeStyle="#000";ctx.lineWidth=2;ctx.stroke();}
+function drawFold(x1,y1,x2,y2){ctx.save();ctx.setLineDash([5,5]);ctx.strokeStyle="#777";ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.restore();}
+function drawCrossNet(x,y,W,D,H,T){const topX=x+H,topY=y+H,leftX=x,leftY=topY,rightX=topX+W,rightY=topY,backX=topX,backY=y,frontX=topX,frontY=topY+D;drawImagePanel(loaded.top,topX,topY,W,D,"top");drawImagePanel(loaded.back,backX,backY,W,H,"back");drawImagePanel(loaded.front,frontX,frontY,W,H,"front");drawImagePanel(loaded.left,leftX,leftY,H,D,"left");drawImagePanel(loaded.right,rightX,rightY,H,D,"right");drawTab([[leftX+T,leftY-T],[leftX+H-T,leftY-T],[leftX+H,leftY],[leftX,leftY]]);drawTab([[leftX,leftY+D],[leftX+H,leftY+D],[leftX+H-T,leftY+D+T],[leftX+T,leftY+D+T]]);drawTab([[rightX+T,rightY-T],[rightX+H-T,rightY-T],[rightX+H,rightY],[rightX,rightY]]);drawTab([[rightX,rightY+D],[rightX+H,rightY+D],[rightX+H-T,rightY+D+T],[rightX+T,rightY+D+T]]);drawTab([[backX+W,backY+T],[backX+W+T,backY+T*1.5],[backX+W+T,backY+H-T*1.5],[backX+W,backY+H-T]]);drawFold(topX,topY,topX+W,topY);drawFold(topX,topY+D,topX+W,topY+D);drawFold(topX,topY,topX,topY+D);drawFold(topX+W,topY,topX+W,topY+D);drawFold(leftX,leftY,leftX+H,leftY);drawFold(leftX,leftY+D,leftX+H,leftY+D);drawFold(rightX,rightY,rightX+H,rightY);drawFold(rightX,rightY+D,rightX+H,rightY+D);drawFold(backX+W,backY+T,backX+W,backY+H-T);}
+function drawStripNet(x,y,W,D,H,T){const leftX=x,frontX=leftX+D,rightX=frontX+W,backX=rightX+D,tabX=backX+W,roofY=y+T,wallY=roofY+D;drawImagePanel(loaded.top,frontX,roofY,W,D,"top");drawImagePanel(loaded.left,leftX,wallY,D,H,"left");drawImagePanel(loaded.front,frontX,wallY,W,H,"front");drawImagePanel(loaded.right,rightX,wallY,D,H,"right");drawImagePanel(loaded.back,backX,wallY,W,H,"back");drawTab([[frontX+T,roofY-T],[frontX+W-T,roofY-T],[frontX+W,roofY],[frontX,roofY]]);drawTab([[tabX,wallY],[tabX+T,wallY+T],[tabX+T,wallY+H-T],[tabX,wallY+H]]);drawTab([[frontX,roofY],[frontX-T,roofY+T],[frontX-T,roofY+D-T],[frontX,roofY+D]]);drawTab([[frontX+W,roofY],[frontX+W+T,roofY+T],[frontX+W+T,roofY+D-T],[frontX+W,roofY+D]]);drawFold(frontX,roofY,frontX+W,roofY);drawFold(frontX,roofY+D,frontX+W,roofY+D);drawFold(frontX,wallY,frontX,wallY+H);drawFold(rightX,wallY,rightX,wallY+H);drawFold(backX,wallY,backX,wallY+H);}
+function generateTemplate(){const paper=getPaper();canvas.width=paper.width;canvas.height=paper.height;ctx.fillStyle="#fff";ctx.fillRect(0,0,canvas.width,canvas.height);const MM_TO_PX=300/25.4;const title=document.getElementById("templateTitle").value||"APOC Building";const Wmm=Number(document.getElementById("boxW").value),Dmm=Number(document.getElementById("boxD").value),Hmm=Number(document.getElementById("boxH").value),Tmm=Number(document.getElementById("tabSize").value);let W=Wmm*MM_TO_PX,D=Dmm*MM_TO_PX,H=Hmm*MM_TO_PX,T=Tmm*MM_TO_PX;const layout=document.getElementById("netLayout").value;let netW,netH;if(layout==="cross"){netW=H+W+H+T;netH=H+D+H+T;}else{netW=D+W+D+W+T;netH=T+D+H;}const margin=35,topSafe=260,bottomSafe=95;const availW=canvas.width-(margin*2),availH=canvas.height-topSafe-bottomSafe;const scale=Math.min(availW/netW,availH/netH);W*=scale;D*=scale;H*=scale;T*=scale;netW*=scale;netH*=scale;ctx.fillStyle="#111";ctx.textAlign="center";ctx.textBaseline="middle";ctx.font="bold 70px Arial";ctx.fillText(title,canvas.width/2,100);ctx.font="30px Arial";ctx.fillText("Cut solid lines. Fold dotted lines. Glue the pale yellow tabs.",canvas.width/2,160);const startX=(canvas.width-netW)/2,startY=topSafe+((availH-netH)/2);if(layout==="cross")drawCrossNet(startX,startY,W,D,H,T);else drawStripNet(startX,startY,W,D,H,T);const printedW=(Wmm*scale).toFixed(1),printedD=(Dmm*scale).toFixed(1),printedH=(Hmm*scale).toFixed(1),scalePercent=(scale*100).toFixed(1);ctx.fillStyle="#111";ctx.textAlign="center";ctx.font="28px Arial";ctx.fillText(`A4 ${paper.orientation} • ${layout==="cross"?"compact cross layout":"strip layout"} • ${scalePercent}% scale • Final model approx ${printedW}mm W x ${printedD}mm D x ${printedH}mm H`,canvas.width/2,canvas.height-45);}
+function safeFileName(name){return(name||"apoc-building").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");}
 function downloadPNG(){generateTemplate();const a=document.createElement("a");a.download=safeFileName(document.getElementById("templateTitle").value)+".png";a.href=canvas.toDataURL("image/png");a.click();}
-
-function downloadPDF(){
-  generateTemplate();
-  const paper=getPaper();
-  const {jsPDF}=window.jspdf;
-  const pdf=new jsPDF({orientation:"landscape",unit:"mm",format:"a4"});
-  const pageW=pdf.internal.pageSize.getWidth();
-  const pageH=pdf.internal.pageSize.getHeight();
-  pdf.addImage(canvas.toDataURL("image/png",1),"PNG",0,0,pageW,pageH);
-  pdf.save(safeFileName(document.getElementById("templateTitle").value)+".pdf");
-}
-
-function saveProject(){
-  const project={
-    title:document.getElementById("templateTitle").value,
-    settings:{
-      width:document.getElementById("boxW").value,
-      depth:document.getElementById("boxD").value,
-      height:document.getElementById("boxH").value,
-      tab:document.getElementById("tabSize").value,
-      fit:document.getElementById("fitMode").value
-    },
-    rotations:{
-      front:document.getElementById("frontRot").value,
-      back:document.getElementById("backRot").value,
-      left:document.getElementById("leftRot").value,
-      right:document.getElementById("rightRot").value,
-      top:document.getElementById("topRot").value
-    },
-    images:imageData
-  };
-  const blob=new Blob([JSON.stringify(project,null,2)],{type:"application/json"});
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download=safeFileName(project.title)+".json";
-  a.click();
-  URL.revokeObjectURL(a.href);
-}
-
-function loadOneImage(key,data){
-  if(!data){loaded[key]=null;imageData[key]=null;return;}
-  imageData[key]=data;
-  const img=new Image();
-  img.onload=()=>{loaded[key]=img;generateTemplate();};
-  img.src=data;
-}
-
-document.getElementById("projectLoader").addEventListener("change",e=>{
-  const file=e.target.files[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    const project=JSON.parse(ev.target.result);
-    document.getElementById("templateTitle").value=project.title || "APOC Building";
-    document.getElementById("boxW").value=project.settings.width;
-    document.getElementById("boxD").value=project.settings.depth;
-    document.getElementById("boxH").value=project.settings.height;
-    document.getElementById("tabSize").value=project.settings.tab;
-    document.getElementById("fitMode").value=project.settings.fit || "fill";
-    document.getElementById("frontRot").value=project.rotations.front;
-    document.getElementById("backRot").value=project.rotations.back;
-    document.getElementById("leftRot").value=project.rotations.left;
-    document.getElementById("rightRot").value=project.rotations.right;
-    document.getElementById("topRot").value=project.rotations.top;
-    keys.forEach(key=>loadOneImage(key,project.images[key]));
-    generateTemplate();
-  };
-  reader.readAsText(file);
-  e.target.value="";
-});
-
+function downloadPDF(){generateTemplate();const paper=getPaper();const{jsPDF}=window.jspdf;const pdf=new jsPDF({orientation:paper.orientation,unit:"mm",format:"a4"});const pageW=pdf.internal.pageSize.getWidth(),pageH=pdf.internal.pageSize.getHeight();pdf.addImage(canvas.toDataURL("image/png",1),"PNG",0,0,pageW,pageH);pdf.save(safeFileName(document.getElementById("templateTitle").value)+".pdf");}
+function saveProject(){const project={title:document.getElementById("templateTitle").value,settings:{width:document.getElementById("boxW").value,depth:document.getElementById("boxD").value,height:document.getElementById("boxH").value,tab:document.getElementById("tabSize").value,fit:document.getElementById("fitMode").value,paperLayout:document.getElementById("paperLayout").value,netLayout:document.getElementById("netLayout").value},rotations:{front:document.getElementById("frontRot").value,back:document.getElementById("backRot").value,left:document.getElementById("leftRot").value,right:document.getElementById("rightRot").value,top:document.getElementById("topRot").value},images:imageData};const blob=new Blob([JSON.stringify(project,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=safeFileName(project.title)+".json";a.click();URL.revokeObjectURL(a.href);}
+function loadOneImage(key,data){if(!data){loaded[key]=null;imageData[key]=null;return;}imageData[key]=data;const img=new Image();img.onload=()=>{loaded[key]=img;generateTemplate();};img.src=data;}
+document.getElementById("projectLoader").addEventListener("change",e=>{const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=ev=>{const project=JSON.parse(ev.target.result);document.getElementById("templateTitle").value=project.title||"APOC Building";const s=project.settings||{};document.getElementById("boxW").value=s.width||100;document.getElementById("boxD").value=s.depth||100;document.getElementById("boxH").value=s.height||80;document.getElementById("tabSize").value=s.tab||8;document.getElementById("fitMode").value=s.fit||"fill";document.getElementById("paperLayout").value=s.paperLayout||"portrait";document.getElementById("netLayout").value=s.netLayout||"cross";const r=project.rotations||{};document.getElementById("frontRot").value=r.front||0;document.getElementById("backRot").value=r.back||0;document.getElementById("leftRot").value=r.left||0;document.getElementById("rightRot").value=r.right||0;document.getElementById("topRot").value=r.top||0;keys.forEach(key=>loadOneImage(key,(project.images||{})[key]));generateTemplate();};reader.readAsText(file);e.target.value="";});
 generateTemplate();
 </script>
 </body>
