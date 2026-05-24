@@ -113,6 +113,7 @@ canvas{ background:#fff; max-width:100%; height:auto; box-shadow:0 6px 20px rgba
 <select id="fitMode">
 <option value="fill">Fill Panel</option>
 <option value="fit">Fit Whole Image</option>
+<option value="stretch">Stretch To Panel</option>
 </select>
 
 <button onclick="generateTemplate()">Generate Template</button>
@@ -193,11 +194,27 @@ function drawRotatedImage(img,x,y,w,h,rotation){
 
   let drawW, drawH;
 
-  if(document.getElementById("fitMode").value==="fill"){
+  const mode=document.getElementById("fitMode").value;
+
+  if(mode==="stretch"){
+
+    if(rotated){
+      ctx.drawImage(img,-h/2,-w/2,h,w);
+    }else{
+      ctx.drawImage(img,-w/2,-h/2,w,h);
+    }
+
+    ctx.restore();
+    return;
+  }
+
+  if(mode==="fill"){
     if(ratio>boxRatio){ drawH=h; drawW=h*ratio; }
     else{ drawW=w; drawH=w/ratio; }
   }else{
     if(ratio>boxRatio){ drawW=w; drawH=w/ratio; }
+    else{ drawH=h; drawW=h*ratio; }
+  }
     else{ drawH=h; drawW=h*ratio; }
   }
 
