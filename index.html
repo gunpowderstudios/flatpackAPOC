@@ -1,275 +1,441 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>APOC News Generator</title>
-  <style>
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#d9d9d9;color:#111}
-    .app{display:grid;grid-template-columns:360px 1fr;gap:22px;padding:22px;max-width:1400px;margin:auto}
-    .controls{background:#fff;border-radius:14px;padding:18px;box-shadow:0 8px 24px rgba(0,0,0,.15);height:calc(100vh - 44px);overflow-y:auto;position:sticky;top:22px}
-    .controls h1{margin:0 0 8px;font-size:24px}.controls p{font-size:13px;color:#555;line-height:1.35}
-    label{display:block;font-weight:800;margin:13px 0 5px}input,textarea,select,button{width:100%;font:inherit}input,textarea,select{padding:9px;border:2px solid #ccc;border-radius:8px}textarea{min-height:82px;resize:vertical}input[type=file]{padding:7px}.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}button{padding:11px 12px;border:0;border-radius:8px;background:#111;color:white;font-weight:800;cursor:pointer}button.primary{background:#b51f22}button:hover{filter:brightness(.9)}.tip{font-size:12px;color:#666;margin-top:8px}.newspaper-wrap{overflow:auto;padding-bottom:18px}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APOC Flatpack Generator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{box-sizing:border-box}
 
-    /* Status field */
-    select#statusInput{border-width:2px}
-    select#statusInput.status-draft{border-color:#ccc;background:#fff}
-    select#statusInput.status-ready{border-color:#2a9d3a;background:#edfbee;color:#1a6b28}
-    select#statusInput.status-approved{border-color:#b51f22;background:#fdf0f0;color:#b51f22}
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:#202020;
+  color:#f5f5f5;
+}
 
-    .paper{width:860px;aspect-ratio:210/297;height:1216px;overflow:hidden;padding-bottom:40px;margin:0 auto;padding:26px 32px;background:#f3dfb7;background-image:radial-gradient(rgba(120,70,20,.16) 1px,transparent 1px),radial-gradient(rgba(80,50,10,.10) 1px,transparent 1px);background-size:5px 5px,17px 17px;box-shadow:0 10px 30px rgba(0,0,0,.28);border:1px solid #b8965a}
-    .masthead{display:grid;grid-template-columns:1fr 150px;align-items:center;gap:18px}.paper-name{font-family:Impact,Haettenschweiler,'Arial Narrow Bold',sans-serif;font-size:88px;line-height:.82;letter-spacing:1px;color:#b51f22;text-transform:uppercase;text-align:center}.tagline{font-family:Impact,Haettenschweiler,'Arial Narrow Bold',sans-serif;font-size:38px;text-align:center;line-height:1;text-transform:none;margin-top:10px}.badge{width:132px;height:132px;border:8px solid #000;border-radius:50%;margin:auto;display:flex;align-items:center;justify-content:center;font-family:Impact,Haettenschweiler,'Arial Narrow Bold',sans-serif;font-size:28px;color:#000;text-align:center;line-height:.9}.badge.nuclear{background:#f4e72a}.badge.ai{background:#d82222;color:#fff}.badge.pandemic{background:#188bd2;color:#fff}.badge svg{width:108px;height:108px}.rule{border-top:9px solid #000;border-bottom:4px solid #000;height:18px;margin:18px 0}
-    .front-grid{display:grid;grid-template-columns:1fr 420px;gap:28px}.left-headline{font-family:Impact,Haettenschweiler,'Arial Narrow Bold',sans-serif;font-size:76px;line-height:.94;letter-spacing:.5px;text-transform:uppercase}.left-subline{font-family:Impact,Haettenschweiler,'Arial Narrow Bold',sans-serif;font-size:38px;line-height:1.02;margin-top:10px}.story{font-family:'Times New Roman',Times,serif;font-size:30px;line-height:1.02;margin-top:6px;height:180px;overflow:hidden}.event-box{background:#fff;border:4px solid #000;padding:12px}.event-title{font-family:Impact,Haettenschweiler,'Arial Narrow Bold',sans-serif;background:#f3e51b;color:#000;text-shadow:3px 3px 0 #fff,-3px -3px 0 #fff,3px -3px 0 #fff,-3px 3px 0 #fff;border:2px solid #000;font-size:52px;line-height:.9;text-align:center;text-transform:uppercase;padding:6px 4px}.event-headline{font-family:Impact,Haettenschweiler,'Arial Narrow Bold',sans-serif;font-size:39px;line-height:1.02;margin:12px 0 10px}.photo-frame{height:300px;border:4px solid #000;background:#ddd center/cover no-repeat;display:flex;align-items:center;justify-content:center;color:#777;font-family:Impact,Haettenschweiler,'Arial Narrow Bold',sans-serif;font-size:32px;text-align:center;filter:grayscale(1)}.photo-frame.has-image{color:transparent}.right-story{font-family:'Times New Roman',Times,serif;font-size:30px;line-height:1.02;margin:12px 0 12px;overflow:visible}.ad-box{border:4px solid #000;text-align:center;padding:10px 12px;margin-top:22px;background:rgba(255,255,255,0.15);position:relative;z-index:5}.ad-title{font-family:Impact,Haettenschweiler,'Arial Narrow Bold',sans-serif;font-size:39px;line-height:1;text-transform:uppercase}.ad-text{font-family:'Times New Roman',Times,serif;font-weight:700;font-size:28px;line-height:1.05}.hidden{display:none!important}
-    @media(max-width:980px){.app{grid-template-columns:1fr}.paper{width:860px}}
-    @media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}@page{size:A4 portrait;margin:6mm}body{background:white}.controls{display:none!important}.app{display:block;padding:0;max-width:none}.newspaper-wrap{overflow:visible}.paper{width:198mm;min-height:auto;box-shadow:none;margin:0 auto;padding:6mm;border:0}.paper-name{font-size:72px}.tagline{font-size:30px}.front-grid{grid-template-columns:1fr 92mm;gap:7mm}.left-headline{font-size:58px}.left-subline{font-size:30px}.story{font-size:21px}.event-title{font-size:42px}.event-headline{font-size:31px}.photo-frame{height:66mm}.right-story{font-size:20px}.ad-title{font-size:30px}.ad-text{font-size:22px}}
-  
-    .event-box {
-      background: #ffffff !important;
-      color: #111 !important;
-    }
+header{
+  padding:20px;
+  background:#111;
+  border-bottom:3px solid #d0a53b;
+}
 
-    .event-title {
-      background: #f4d000;
-      color: #111;
-      padding: 8px 10px;
-      margin: -10px -10px 8px -10px;
-      border-bottom: 3px solid #111;
-    }
+.wrap{
+  display:grid;
+  grid-template-columns:380px 1fr;
+  gap:20px;
+  padding:20px;
+  height:100vh;
+  overflow:hidden;
+}
 
-    .badge {
-      font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif !important;
-      font-size: 28px !important;
-      line-height: 1 !important;
-      text-align: center !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      padding: 8px !important;
-      overflow: hidden !important;
-    }
+.panel{
+  background:#2d2d2d;
+  border-radius:12px;
+  padding:18px;
+  min-height:0;
+}
 
-    .badge svg {
-      display: none !important;
-    }
+.panel:first-child{
+  overflow-y:auto;
+}
 
-  </style>
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+label{
+  display:block;
+  margin:12px 0 6px;
+  font-weight:bold;
+}
+
+input,select,button{
+  width:100%;
+  padding:10px;
+  border-radius:8px;
+  border:none;
+  font-size:15px;
+}
+
+button{
+  margin-top:12px;
+  background:#d0a53b;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+button:hover{
+  background:#f0c95a;
+}
+
+button.secondary{
+  background:#444;
+  color:#fff;
+}
+
+.smallGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.uploadBlock{
+  border:1px solid #444;
+  border-radius:10px;
+  padding:10px;
+  margin-bottom:10px;
+  background:#242424;
+}
+
+.uploadRow{
+  display:grid;
+  grid-template-columns:1fr 105px;
+  gap:10px;
+}
+
+.cropGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:8px;
+  margin-top:10px;
+}
+
+.cropGrid label{
+  font-size:12px;
+  margin:0 0 4px;
+  color:#ddd;
+}
+
+.cropGrid input{
+  padding:7px;
+  font-size:13px;
+}
+
+.resetCrop{
+  margin-top:8px;
+  background:#555;
+  color:#fff;
+  padding:8px;
+  font-size:13px;
+}
+
+.canvasBox{
+  overflow:auto;
+  background:#666;
+  border-radius:12px;
+  padding:20px;
+  text-align:center;
+  height:100%;
+}
+
+canvas{
+  background:#fff;
+  max-width:100%;
+  height:auto;
+  box-shadow:0 6px 20px rgba(0,0,0,.5);
+}
+
+.note{
+  font-size:13px;
+  color:#ccc;
+  line-height:1.4;
+  margin-top:14px;
+}
+
+@media(max-width:900px){
+  .wrap{
+    grid-template-columns:1fr;
+    height:auto;
+  }
+
+  .panel:first-child{
+    overflow:visible;
+  }
+
+  .canvasBox{
+    height:auto;
+  }
+}
+</style>
 </head>
 <body>
-<div class="app">
-  <section class="controls">
-    <h1>APOC News Generator</h1>
-    <p>Write the spoof newspaper copy, pick the APOC threat badge, upload a photo, then export PNG/PDF or save the text as JSON for InDesign layout.</p>
-
-    <label>Newspaper ID</label>
-    <input id="newsIdInput" value="N01">
-    <p class="tip">Example: N01, A04, P09 etc. This ID is saved into the JSON filename.</p>
-
-    <!-- Status field -->
-    <label>Status</label>
-    <select id="statusInput" class="status-draft">
-      <option value="draft">⬜ Draft</option>
-      <option value="ready">✅ Ready for designer</option>
-      <option value="approved">🔴 Approved / final</option>
-    </select>
-
-    <label>Paper name</label><input id="paperInput" value="THE GAZETTE">
-    <label>Newspaper tagline</label><input id="taglineInput" value="Where Facts Go to Die">
-    <label>Threat badge</label><select id="badgeInput"><option value="nuclear">Yellow - Nuclear</option><option value="ai">Red - AI</option><option value="pandemic">Blue - Pandemic</option></select>
-    <label>Large left headline</label><textarea id="leftHeadlineInput">NUCLEAR FISSION MELTDOWN MISSION BOTCHED BY BUNGLING 'BARGAIN' BATTALION</textarea>
-    <label>Headline font size — <span id="headlineSizeLabel">76</span>px</label>
-    <input id="headlineSizeInput" type="range" min="32" max="100" value="76">
-    <label>Subline under headline</label><textarea id="leftSublineInput">Fallout fears grow as crew fails to cap reactor</textarea>
-    <label>Main left story</label><textarea id="leftStoryInput">City emergency services are racing to avert a radioactive leak from the Sunny Days Power Station as a privately contracted army struggles to stop the fission core from reaching irreversible meltdown. Fire chief Rudy Wakening has dispatched multiple units to assist the 'specialist' battalion first called in to cap the stricken reactor.</textarea>
-    <label>Story font size — <span id="storySizeLabel">30</span>px</label>
-    <input id="storySizeInput" type="range" min="14" max="40" value="30">
-    <label>Top-right box title</label><input id="eventTitleInput" value="THE APOC EVENT">
-    <label>APOC event headline</label><textarea id="eventHeadlineInput">West Side Panic! Preppers in the area must combat roll 4+ or lose 2 Health.</textarea>
-    <label>Photo</label><input id="photoInput" type="file" accept="image/*">
-    <label>Adjust photo up/down</label><input id="photoPosInput" type="range" min="0" max="100" value="50">
-
-    <label>Photo frame height</label>
-    <input id="photoHeightInput" type="range" min="240" max="820" value="300">
-    <p class="tip">Expand this for portrait images.</p>
-    
-    <label>Fake advert title</label><input id="adTitleInput" value="SUNNY-JIM lip balm.">
-    <label>Fake advert text</label><textarea id="adTextInput">Helps reduce nuclear burns with vitamin P</textarea>
-    <div class="buttons"><button class="primary" id="pngBtn" type="button">Download PNG</button><button id="printBtn" type="button">Print / PDF</button><button id="saveJsonBtn" type="button">Save JSON</button><button id="loadJsonBtn" type="button">Load JSON</button></div>
-    <input id="jsonInput" class="hidden" type="file" accept="application/json,.json">
-    <p class="tip">JSON saves the written copy, badge, and status — not the photo. Send JSON + photo file to your designer. Photo should be named as shown above.</p>
-  </section>
-  <section class="newspaper-wrap">
-    <article class="paper" id="paper">
-      <header class="masthead"><div><div class="paper-name" id="paperName"></div><div class="tagline" id="tagline"></div></div><div class="badge nuclear" id="badge">NUCLEAR</div></header>
-      <div class="rule"></div>
-      <main class="front-grid"><section><div class="left-headline" id="leftHeadline"></div><div class="left-subline" id="leftSubline"></div><div class="story" id="leftStory"></div></section><aside><div class="event-box" id="eventBox"><div class="event-title" id="eventTitle"></div><div class="event-headline" id="eventHeadline"></div><div class="photo-frame" id="photoFrame">Upload Photo</div></div><div class="right-story" id="rightStory"></div><div class="ad-box"><div class="ad-title" id="adTitle"></div><div class="ad-text" id="adText"></div></div></aside></main>
-    </article>
-  </section>
+<header>
+<h1>Flat Pack APOC Building Generator</h1>
+<p>Create printable cardboard building templates from real photographs.</p>
+</header>
+<div class="wrap">
+<div class="panel">
+<label>Building Name</label>
+<input type="text" id="templateTitle" placeholder="Enter Building Name">
+<button onclick="saveProject()">Save Building Project JSON</button>
+<button class="secondary" onclick="document.getElementById('projectLoader').click()">Load Building Project JSON</button>
+<input type="file" id="projectLoader" accept=".json" style="display:none">
+<div class="uploadBlock"><label>Front</label><div class="uploadRow"><input type="file" id="frontImg" accept="image/*"><select id="frontRot"><option value="0" selected>0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option></select></div>
+<div class="cropGrid">
+<div><label>Zoom %</label><input type="number" id="frontZoom" value="100" min="10" max="500" step="5"></div>
+<div><label>Move X</label><input type="number" id="frontX" value="0" step="1"></div>
+<div><label>Move Y</label><input type="number" id="frontY" value="0" step="1"></div>
+</div>
+<button type="button" class="resetCrop" onclick="resetCrop('front')">Reset Front Crop</button></div>
+<div class="uploadBlock"><label>Back</label><div class="uploadRow"><input type="file" id="backImg" accept="image/*"><select id="backRot"><option value="0">0°</option><option value="90">90°</option><option value="180" selected>180°</option><option value="270">270°</option></select></div>
+<div class="cropGrid">
+<div><label>Zoom %</label><input type="number" id="backZoom" value="100" min="10" max="500" step="5"></div>
+<div><label>Move X</label><input type="number" id="backX" value="0" step="1"></div>
+<div><label>Move Y</label><input type="number" id="backY" value="0" step="1"></div>
+</div>
+<button type="button" class="resetCrop" onclick="resetCrop('back')">Reset Back Crop</button></div>
+<div class="uploadBlock"><label>Left</label><div class="uploadRow"><input type="file" id="leftImg" accept="image/*"><select id="leftRot"><option value="0">0°</option><option value="90" selected>90°</option><option value="180">180°</option><option value="270">270°</option></select></div>
+<div class="cropGrid">
+<div><label>Zoom %</label><input type="number" id="leftZoom" value="100" min="10" max="500" step="5"></div>
+<div><label>Move X</label><input type="number" id="leftX" value="0" step="1"></div>
+<div><label>Move Y</label><input type="number" id="leftY" value="0" step="1"></div>
+</div>
+<button type="button" class="resetCrop" onclick="resetCrop('left')">Reset Left Crop</button></div>
+<div class="uploadBlock"><label>Right</label><div class="uploadRow"><input type="file" id="rightImg" accept="image/*"><select id="rightRot"><option value="0">0°</option><option value="90">90°</option><option value="180">180°</option><option value="270" selected>270°</option></select></div>
+<div class="cropGrid">
+<div><label>Zoom %</label><input type="number" id="rightZoom" value="100" min="10" max="500" step="5"></div>
+<div><label>Move X</label><input type="number" id="rightX" value="0" step="1"></div>
+<div><label>Move Y</label><input type="number" id="rightY" value="0" step="1"></div>
+</div>
+<button type="button" class="resetCrop" onclick="resetCrop('right')">Reset Right Crop</button></div>
+<div class="uploadBlock"><label>Top / Roof</label><div class="uploadRow"><input type="file" id="topImg" accept="image/*"><select id="topRot"><option value="0" selected>0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option></select></div>
+<div class="cropGrid">
+<div><label>Zoom %</label><input type="number" id="topZoom" value="100" min="10" max="500" step="5"></div>
+<div><label>Move X</label><input type="number" id="topX" value="0" step="1"></div>
+<div><label>Move Y</label><input type="number" id="topY" value="0" step="1"></div>
+</div>
+<button type="button" class="resetCrop" onclick="resetCrop('top')">Reset Top / Roof Crop</button></div>
+<div class="smallGrid">
+<div><label>Width mm</label><input type="number" id="boxW" value="100"></div>
+<div><label>Depth mm</label><input type="number" id="boxD" value="100"></div>
+<div><label>Height mm</label><input type="number" id="boxH" value="80"></div>
+<div><label>Glue Tab mm</label><input type="number" id="tabSize" value="8"></div>
+</div>
+<label>Paper</label>
+<select id="paperLayout"><option value="portrait" selected>A4 Portrait</option><option value="landscape">A4 Landscape</option></select>
+<label>Print Scale</label>
+<select id="scaleMode"><option value="fit">Auto Fit To Page</option><option value="actual" selected>Actual Size / 100%</option></select>
+<label>Image Fit</label>
+<select id="fitMode"><option value="fill">Fill Panel</option><option value="fit">Fit Whole Image</option><option value="stretch">Stretch To Panel</option></select>
+<button onclick="downloadPNG()">Download PNG (transparent)</button>
+<button onclick="downloadPDF()">Download PDF</button>
+<div class="note">The roof sits in the centre with the walls folding around it. Use Zoom and Move X/Y to crop each photo without Photoshop.</div>
+</div>
+<div class="panel"><div class="canvasBox"><canvas id="templateCanvas"></canvas></div></div>
 </div>
 <script>
-const $=id=>document.getElementById(id);
-const fields=['newsId','paper','tagline','badge','leftHeadline','leftSubline','leftStory','eventTitle','eventHeadline','adTitle','adText','status','headlineSize','storySize'];
-const map={newsId:'newsIdInput',paper:'paperInput',tagline:'taglineInput',badge:'badgeInput',leftHeadline:'leftHeadlineInput',leftSubline:'leftSublineInput',leftStory:'leftStoryInput',eventTitle:'eventTitleInput',eventHeadline:'eventHeadlineInput',adTitle:'adTitleInput',adText:'adTextInput',status:'statusInput',headlineSize:'headlineSizeInput',storySize:'storySizeInput'};
+const canvas=document.getElementById('templateCanvas');
+const ctx=canvas.getContext('2d');
+const loaded={front:null,back:null,left:null,right:null,top:null};
+const imageData={front:null,back:null,left:null,right:null,top:null};
+const keys=['front','back','left','right','top'];
+[['frontImg','front'],['backImg','back'],['leftImg','left'],['rightImg','right'],['topImg','top']].forEach(([id,key])=>{
+ document.getElementById(id).addEventListener('change',e=>{
+ const file=e.target.files[0]; if(!file)return;
+ const reader=new FileReader();
+ reader.onload=ev=>{
+ imageData[key]=ev.target.result;
+ const img=new Image();
+ img.onload=()=>{loaded[key]=img;generateTemplate();};
+ img.src=ev.target.result;
+ };
+ reader.readAsDataURL(file);
+ });
+});
+['templateTitle','boxW','boxD','boxH','tabSize','paperLayout','scaleMode','fitMode',...keys.flatMap(key=>[key+'Rot',key+'Zoom',key+'X',key+'Y'])].forEach(id=>{
+ const el=document.getElementById(id);
+ el.addEventListener('input',generateTemplate);
+ el.addEventListener('change',generateTemplate);
+});
+function getPaper(){
+ const layout=document.getElementById('paperLayout').value;
+ if(layout==='landscape') return {width:3508,height:2480,orientation:'landscape'};
+ return {width:2480,height:3508,orientation:'portrait'};
+}
+function getRotation(key){return Number(document.getElementById(key+'Rot').value||0);}
+function getCrop(key){
+ return {
+  zoom:Number(document.getElementById(key+'Zoom').value||100)/100,
+  x:Number(document.getElementById(key+'X').value||0),
+  y:Number(document.getElementById(key+'Y').value||0)
+ };
+}
+function resetCrop(key){
+ document.getElementById(key+'Zoom').value=100;
+ document.getElementById(key+'X').value=0;
+ document.getElementById(key+'Y').value=0;
+ generateTemplate();
+}
+function drawRotatedImage(img,x,y,w,h,rotation,key){
+ ctx.save();ctx.beginPath();ctx.rect(x,y,w,h);ctx.clip();
+ const crop=getCrop(key);
+ ctx.translate(x+w/2+crop.x,y+h/2+crop.y);ctx.rotate(rotation*Math.PI/180);
+ const rotated=rotation===90||rotation===270;
+ const mode=document.getElementById('fitMode').value;
+ if(mode==='stretch'){
+ if(rotated)ctx.drawImage(img,-(h*crop.zoom)/2,-(w*crop.zoom)/2,h*crop.zoom,w*crop.zoom);
+ else ctx.drawImage(img,-(w*crop.zoom)/2,-(h*crop.zoom)/2,w*crop.zoom,h*crop.zoom);
+ ctx.restore();return;
+ }
+ const imgW=rotated?img.height:img.width;
+ const imgH=rotated?img.width:img.height;
+ const ratio=imgW/imgH;
+ const boxRatio=w/h;
+ let drawW,drawH;
+ if(mode==='fill'){
+ if(ratio>boxRatio){drawH=h;drawW=h*ratio;}else{drawW=w;drawH=w/ratio;}
+ }else{
+ if(ratio>boxRatio){drawW=w;drawH=w/ratio;}else{drawH=h;drawW=h*ratio;}
+ }
+ drawW*=crop.zoom;
+ drawH*=crop.zoom;
+ if(rotated)ctx.drawImage(img,-drawH/2,-drawW/2,drawH,drawW);
+ else ctx.drawImage(img,-drawW/2,-drawH/2,drawW,drawH);
+ ctx.restore();
+}
+function drawPanel(img,x,y,w,h,key){ctx.fillStyle='#f2f2f2';ctx.fillRect(x,y,w,h);if(img)drawRotatedImage(img,x,y,w,h,getRotation(key),key);ctx.strokeStyle='#000';ctx.lineWidth=2;ctx.strokeRect(x,y,w,h);}
+function drawTab(points){ctx.beginPath();ctx.moveTo(points[0][0],points[0][1]);for(let i=1;i<points.length;i++)ctx.lineTo(points[i][0],points[i][1]);ctx.closePath();ctx.fillStyle='#fff6cc';ctx.fill();ctx.strokeStyle='#000';ctx.lineWidth=2;ctx.stroke();}
+function drawFold(x1,y1,x2,y2){ctx.save();ctx.setLineDash([5,5]);ctx.strokeStyle='#777';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.restore();}
+function drawCrossNet(x,y,W,D,H,T){
+ const topX=x+H,topY=y+H,leftX=x,leftY=topY,rightX=topX+W,rightY=topY,backX=topX,backY=y,frontX=topX,frontY=topY+D;
+ drawPanel(loaded.top,topX,topY,W,D,'top');
+ drawPanel(loaded.back,backX,backY,W,H,'back');
+ drawPanel(loaded.front,frontX,frontY,W,H,'front');
+ drawPanel(loaded.left,leftX,leftY,H,D,'left');
+ drawPanel(loaded.right,rightX,rightY,H,D,'right');
 
-function updateStatusStyle(){
-  const sel = $('statusInput');
-  sel.className = 'status-' + sel.value;
+ // On very small buildings, a full-width bevel can cross over itself.
+ // This keeps the glue tab full depth, but makes the side slants shallower.
+ const tabInset=Math.max(4,Math.min(T,H*0.18));
+
+ drawTab([[leftX+tabInset,leftY-T],[leftX+H-tabInset,leftY-T],[leftX+H,leftY],[leftX,leftY]]);
+ drawTab([[leftX,leftY+D],[leftX+H,leftY+D],[leftX+H-tabInset,leftY+D+T],[leftX+tabInset,leftY+D+T]]);
+ drawTab([[rightX+tabInset,rightY-T],[rightX+H-tabInset,rightY-T],[rightX+H,rightY],[rightX,rightY]]);
+ drawTab([[rightX,rightY+D],[rightX+H,rightY+D],[rightX+H-tabInset,rightY+D+T],[rightX+tabInset,rightY+D+T]]);
+ drawFold(topX,topY,topX+W,topY);
+ drawFold(topX,topY+D,topX+W,topY+D);
+ drawFold(topX,topY,topX,topY+D);
+ drawFold(topX+W,topY,topX+W,topY+D);
+}
+function generateTemplate(){
+ const paper=getPaper();canvas.width=paper.width;canvas.height=paper.height;
+ ctx.clearRect(0,0,canvas.width,canvas.height);
+ const MM=300/25.4;
+ const Wmm=Number(document.getElementById('boxW').value);
+ const Dmm=Number(document.getElementById('boxD').value);
+ const Hmm=Number(document.getElementById('boxH').value);
+ const Tmm=Number(document.getElementById('tabSize').value);
+ let W=Wmm*MM,D=Dmm*MM,H=Hmm*MM,T=Tmm*MM;
+ let netW=H+W+H,netH=H+D+H+T;
+ const margin=118,topSafe=250,bottomSafe=118;
+ const availW=canvas.width-(margin*2);
+ const availH=canvas.height-topSafe-bottomSafe;
+ const scaleMode=document.getElementById('scaleMode').value;
+ const scale=scaleMode==='actual'?1:Math.min(availW/netW,availH/netH);
+ W*=scale;D*=scale;H*=scale;T*=scale;netW*=scale;netH*=scale;
+ const title=document.getElementById('templateTitle').value||'APOC Building';
+ ctx.fillStyle='#111';ctx.textAlign='center';ctx.textBaseline='middle';
+ ctx.font='bold 78px Arial';
+ ctx.fillText(title,canvas.width/2,118);
+ ctx.font='28px Arial';
+ ctx.fillText('Cut solid lines. Fold dotted lines. Glue the pale yellow tabs.',canvas.width/2,185);
+ const startX=(canvas.width-netW)/2;
+ const startY=topSafe+((availH-netH)/2);
+ drawCrossNet(startX,startY,W,D,H,T);
+ const printedW=(Wmm*scale).toFixed(1);
+ const printedD=(Dmm*scale).toFixed(1);
+ const printedH=(Hmm*scale).toFixed(1);
+ ctx.font='26px Arial';
+ ctx.fillText(`Final model approx ${printedW}mm W x ${printedD}mm D x ${printedH}mm H`,canvas.width/2,canvas.height-45);
+}
+function safeFileName(name){return(name||'apoc-building').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');}
+function downloadPNG(){generateTemplate();const a=document.createElement('a');a.download=safeFileName(document.getElementById('templateTitle').value)+'.png';a.href=canvas.toDataURL('image/png');a.click();}
+function downloadPDF(){generateTemplate();const paper=getPaper();const{jsPDF}=window.jspdf;const pdf=new jsPDF({orientation:paper.orientation,unit:'mm',format:'a4'});const pageW=pdf.internal.pageSize.getWidth();const pageH=pdf.internal.pageSize.getHeight();pdf.addImage(canvas.toDataURL('image/png',1),'PNG',0,0,pageW,pageH);pdf.save(safeFileName(document.getElementById('templateTitle').value)+'.pdf');}
+function saveProject(){
+ const project={
+  title:document.getElementById('templateTitle').value,
+  settings:{
+   width:document.getElementById('boxW').value,
+   depth:document.getElementById('boxD').value,
+   height:document.getElementById('boxH').value,
+   tab:document.getElementById('tabSize').value,
+   paperLayout:document.getElementById('paperLayout').value,
+   scaleMode:document.getElementById('scaleMode').value,
+   fitMode:document.getElementById('fitMode').value
+  },
+  rotations:{
+   front:document.getElementById('frontRot').value,
+   back:document.getElementById('backRot').value,
+   left:document.getElementById('leftRot').value,
+   right:document.getElementById('rightRot').value,
+   top:document.getElementById('topRot').value
+  },
+  crops:Object.fromEntries(keys.map(key=>[key,{zoom:document.getElementById(key+'Zoom').value,x:document.getElementById(key+'X').value,y:document.getElementById(key+'Y').value}])),
+  images:imageData
+ };
+ const blob=new Blob([JSON.stringify(project,null,2)],{type:'application/json'});
+ const a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);
+ a.download=safeFileName(project.title)+'.json';
+ a.click();
+ URL.revokeObjectURL(a.href);
 }
 
-function nuclearSVG(){return '<svg viewBox="0 0 100 100" aria-label="nuclear"><circle cx="50" cy="50" r="8" fill="#000"/><path d="M50 6 L60 43 A18 18 0 0 0 40 43 Z" fill="#000"/><path d="M12 70 L43 56 A18 18 0 0 1 35 40 Z" fill="#000"/><path d="M88 70 L57 56 A18 18 0 0 0 65 40 Z" fill="#000"/></svg>'}
-
-function updateBadge(){
-  const b=$('badge'), v=$('badgeInput').value, title=$('eventTitle'), box=$('eventBox');
-  b.className='badge '+v;
-
-  if(box){
-    box.style.background='#ffffff';
-    box.style.color='#111';
-  }
-
-  if(title){
-    title.style.color='#000';
-    title.style.textShadow='3px 3px 0 #fff,-3px -3px 0 #fff,3px -3px 0 #fff,-3px 3px 0 #fff';
-    title.style.borderBottomColor='#111';
-  }
-
-  if(v==='nuclear'){
-    b.textContent='NUCLEAR';
-    if(title) title.style.backgroundColor='#f4d000';
-  }
-  if(v==='ai'){
-    b.textContent='AI';
-    if(title) title.style.backgroundColor='#c40000';
-  }
-  if(v==='pandemic'){
-    b.textContent='PANDEMIC';
-    if(title) title.style.backgroundColor='#0c5fd7';
-  }
+function setValueIfExists(id,value){
+ const el=document.getElementById(id);
+ if(el && value!==undefined && value!==null) el.value=value;
 }
 
-function flowStory(){
-  const input = $('leftStoryInput').value || '';
-  const left = $('leftStory');
-  const right = $('rightStory');
+document.getElementById('projectLoader').addEventListener('change',e=>{
+ const file=e.target.files[0];
+ if(!file)return;
+ const reader=new FileReader();
+ reader.onload=ev=>{
+  try{
+   const project=JSON.parse(ev.target.result);
+   setValueIfExists('templateTitle',project.title||'APOC Building');
+   const s=project.settings||{};
+   setValueIfExists('boxW',s.width);
+   setValueIfExists('boxD',s.depth);
+   setValueIfExists('boxH',s.height);
+   setValueIfExists('tabSize',s.tab);
+   setValueIfExists('paperLayout',s.paperLayout||'portrait');
+   setValueIfExists('scaleMode',s.scaleMode||'actual');
+   setValueIfExists('fitMode',s.fitMode||'fill');
 
-  left.textContent = '';
-  right.textContent = '';
+   const r=project.rotations||{};
+   const c=project.crops||{};
+   keys.forEach(key=>{
+    setValueIfExists(key+'Rot',r[key]);
+    setValueIfExists(key+'Zoom',c[key]&&c[key].zoom!==undefined?c[key].zoom:100);
+    setValueIfExists(key+'X',c[key]&&c[key].x!==undefined?c[key].x:0);
+    setValueIfExists(key+'Y',c[key]&&c[key].y!==undefined?c[key].y:0);
+    imageData[key]=project.images&&project.images[key]?project.images[key]:null;
+    loaded[key]=null;
+   });
 
-  const words = input.split(' ');
-  let current = '';
-
-  for(let i=0;i<words.length;i++){
-    const test = current + words[i] + ' ';
-    left.textContent = test;
-    if(left.scrollHeight > left.clientHeight){
-      right.textContent = words.slice(i).join(' ');
-      break;
-    } else {
-      current = test;
+   const imageLoaders=[];
+   keys.forEach(key=>{
+    if(imageData[key]){
+     imageLoaders.push(new Promise(resolve=>{
+      const img=new Image();
+      img.onload=()=>{loaded[key]=img;resolve();};
+      img.onerror=()=>resolve();
+      img.src=imageData[key];
+     }));
     }
+   });
+
+   Promise.all(imageLoaders).then(()=>generateTemplate());
+  }catch(err){
+   alert('This JSON file could not be loaded. Please check it is a saved APOC building project.');
+   console.error(err);
   }
-
-  left.textContent = current;
-  if(right.textContent === '') left.textContent = input;
-}
-
-function updateHeadlineSize(){
-  const v = $('headlineSizeInput').value;
-  $('headlineSizeLabel').textContent = v;
-  $('leftHeadline').style.fontSize = v + 'px';
-}
-
-function updateStorySize(){
-  const v = $('storySizeInput').value;
-  $('storySizeLabel').textContent = v;
-  const size = v + 'px';
-  $('leftStory').style.fontSize = size;
-  $('rightStory').style.fontSize = size;
-  flowStory();
-}
-
-function update(){
-  $('paperName').textContent=$('paperInput').value;
-  $('tagline').textContent=$('taglineInput').value;
-  $('leftHeadline').textContent=$('leftHeadlineInput').value;
-  $('leftSubline').textContent=$('leftSublineInput').value;
-  updateHeadlineSize();
-  updateStorySize();
-  $('eventTitle').textContent=$('eventTitleInput').value;
-  $('eventHeadline').textContent=$('eventHeadlineInput').value;
-  $('adTitle').textContent=$('adTitleInput').value;
-  $('adText').textContent=$('adTextInput').value;
-  updateBadge();
-  updatePhotoPos();
-  updatePhotoHeight();
-  updateStatusStyle();
-}
-
-function updatePhotoPos(){ $('photoFrame').style.backgroundPosition='center '+$('photoPosInput').value+'%'; }
-function updatePhotoHeight(){ if($('photoHeightInput')) $('photoFrame').style.height=$('photoHeightInput').value+'px'; }
-
-Object.values(map).forEach(id=>{ if($(id)) $(id).addEventListener('input',update); });
-$('headlineSizeInput').addEventListener('input',()=>{updateHeadlineSize();});
-$('storySizeInput').addEventListener('input',()=>{updateStorySize();});
-$('photoPosInput').addEventListener('input',updatePhotoPos);
-if($('photoHeightInput')) $('photoHeightInput').addEventListener('input',()=>{updatePhotoHeight(); update();});
-$('badgeInput').addEventListener('change',update);
-$('statusInput').addEventListener('change',updateStatusStyle);
-
-$('photoInput').addEventListener('change',e=>{
-  const f=e.target.files[0];
-  if(!f)return;
-  const r=new FileReader();
-  r.onload=ev=>{
-    $('photoFrame').style.backgroundImage='url("'+ev.target.result+'")';
-    $('photoFrame').classList.add('has-image');
-  };
-  r.readAsDataURL(f);
+  e.target.value='';
+ };
+ reader.readAsText(file);
 });
 
-function data(){
-  let o={generator:'APOC News Generator',version:1,savedAt:new Date().toISOString()};
-  fields.forEach(k=>{ if($(map[k])) o[k]=$(map[k]).value; });
-  return o;
-}
-
-$('saveJsonBtn').onclick=()=>{
-  const blob=new Blob([JSON.stringify(data(),null,2)],{type:'application/json'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download='apoc-news-'+($('newsIdInput').value || 'unknown')+'.json';
-  a.click();
-  URL.revokeObjectURL(a.href);
-};
-
-$('loadJsonBtn').onclick=()=>$('jsonInput').click();
-$('jsonInput').addEventListener('change',e=>{
-  const f=e.target.files[0];
-  if(!f)return;
-  const r=new FileReader();
-  r.onload=ev=>{
-    try{
-      const o=JSON.parse(ev.target.result);
-      fields.forEach(k=>{if(o[k]!==undefined && $(map[k])) $(map[k]).value=o[k]});
-      update();
-    }catch(err){alert('That JSON file could not be read.');}
-  };
-  r.readAsText(f);
-});
-
-$('pngBtn').onclick=()=>{
-  if(typeof html2canvas!=='function'){alert('PNG tool is still loading. Try again.');return;}
-  html2canvas($('paper'),{scale:2,backgroundColor:null,useCORS:true}).then(c=>{
-    const a=document.createElement('a');
-    a.download='apoc-newspaper-'+($('newsIdInput').value||'unknown')+'.png';
-    a.href=c.toDataURL('image/png');
-    a.click();
-  });
-};
-
-$('printBtn').onclick=()=>window.print();
-update();
+generateTemplate();
 </script>
 </body>
 </html>
